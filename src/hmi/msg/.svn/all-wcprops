@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/p/robocuphome/code/!svn/ver/70/trunk/ros_baxter_demo/src/hmi/msg
+END
+introRequest.msg
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/p/robocuphome/code/!svn/ver/70/trunk/ros_baxter_demo/src/hmi/msg/introRequest.msg
+END
+hmiRequest.msg
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/p/robocuphome/code/!svn/ver/70/trunk/ros_baxter_demo/src/hmi/msg/hmiRequest.msg
+END

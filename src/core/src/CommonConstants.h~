@@ -1,0 +1,6 @@
+#define TableZ -0.1 (tomesasure)
+#define TableBlockY  0.2
+#define TableBlockX  0.15
+#define BaseToPoint5  0.28
+#define BaseX  0.155
+#define GriperLength  (tomeasure)
