@@ -42,7 +42,7 @@ To souce and cd to the workspace (do it on each terminal tab/window)
 	rostopic echo /robot/limb/left/endpoint_state/pose/position
 	
 # trajectory server
-
+	rosrun baxter_interface joint_trajectory_action_server.py
 
 
 
