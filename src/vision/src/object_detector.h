@@ -32,7 +32,7 @@ class DesktopObject {
 /** Function Headers */
 int detectAndDisplay( Mat frame, Mat obj, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res);
 void imageCallback(const sensor_msgs::ImageConstPtr& msg);//copy image from topic to global variable frame
-bool get_plate_position(vision::platePosition::Request &req, vision::platePosition::Response &res); //service function
+bool get_object_position(vision::platePosition::Request &req, vision::platePosition::Response &res); //service function
 bool displayFrame(vision::platePosition::Request &req, vision::platePosition::Response &res);
 int SIFTfeatureCalculate(Mat &img, vector<KeyPoint> &keypoints,Mat &descriptors );
 Mat readCalibration(ifstream &file);

@@ -71,7 +71,7 @@ int main( int argc, char** argv ){
     objects_file.close();
 	
     ///run service
-	ros::ServiceServer service = nh.advertiseService("vision/get_plate_position", get_plate_position);
+	ros::ServiceServer service = nh.advertiseService("vision/get_object_position", get_object_position);
 	ros::ServiceServer service1 = nh.advertiseService("vision/displayFrame",displayFrame);
 	ROS_INFO("ready to detect the plate");
         
@@ -212,7 +212,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 }
 
 /// service callback return position
-bool get_plate_position(vision::platePosition::Request &req, vision::platePosition::Response &res){
+bool get_object_position(vision::platePosition::Request &req, vision::platePosition::Response &res){
     
     ///find if object is in database
     int found = -1;
