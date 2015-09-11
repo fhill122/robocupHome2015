@@ -220,12 +220,13 @@ bool get_object_position(vision::platePosition::Request &req, vision::platePosit
     for (size_t i=0; i<objects.size(); i++){
         if(objects[i].getName() == req.objectName){
             found = (int)i;
+            printf("Detecting %s\n",req.objectName.c_str());
             break;
         }
     }
     
     if(found == -1){
-        ROS_INFO("Not found in objects database!");
+        ROS_ERROR("Not found in objects database!");
         return false;
     }
 
@@ -246,7 +247,7 @@ bool get_object_position(vision::platePosition::Request &req, vision::platePosit
 	if (detect_error == 0)
 		ROS_INFO("match displayed");
 	else if (detect_error ==1)
-		ROS_INFO("not there");
+		ROS_WARN("not there");
 		
 	return true;
 }
