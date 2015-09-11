@@ -1,8 +1,0 @@
-prefix=/home/robocuphome/robocuphome2015/devel
-
-Name: utilities
-Description: Description of utilities
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/robocuphome/robocuphome2015/devel/lib 
-Requires: message_runtime

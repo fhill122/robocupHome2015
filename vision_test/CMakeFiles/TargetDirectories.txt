@@ -1,7 +1,0 @@
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/SIFT_2images.dir
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/SURF_Homography.dir
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/SURF_detector.dir
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/continuous.dir
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/continuous_SIFT.dir
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/corner.dir
-/home/robocuphome/robocuphome2015/vision_test/CMakeFiles/objectDetection.dir

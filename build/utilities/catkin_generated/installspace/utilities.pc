@@ -1,8 +1,0 @@
-prefix=/home/robocuphome/robocuphome2015/install
-
-Name: utilities
-Description: Description of utilities
-Version: 0.0.0
-Cflags: -I/home/robocuphome/robocuphome2015/install/include
-Libs: -L/home/robocuphome/robocuphome2015/install/lib 
-Requires: message_runtime

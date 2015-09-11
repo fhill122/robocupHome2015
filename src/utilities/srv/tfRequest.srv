@@ -1,5 +1,0 @@
-string source_frameid
-string target_frameid
----
-float64[3] rpy
-float64[3] translation

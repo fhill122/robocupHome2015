@@ -1,8 +1,0 @@
-#define CALIBRATION_FILE "/src/vision/data/Calibration.ini"
-#define CALIBRATION_IMAGE "/src/vision/data/Calibration.jpg"
-
-#define DATA_FOLDER "/src/vision/data"
-
-#define IMAGE_NAME "/Plate.jpg" //"id.jpg" "Plate.jpg"
-#define IMAGE_TOPIC "/camera/rgb/image_raw" //webcam: "usb_cam/image_raw", kinect:"/camera/rgb/image_color"
-

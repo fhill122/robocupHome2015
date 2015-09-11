@@ -1,4 +1,0 @@
-todo
-
-platePosition.srv add another int16 or boolean to indicate whether valid solution is found
-write constants such as calibration_file to a headerfile

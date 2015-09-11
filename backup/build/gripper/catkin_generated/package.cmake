@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "utilities")
-set(utilities_MAINTAINER "robocuphome <robocuphome@todo.todo>")
-set(utilities_DEPRECATED "")
-set(utilities_VERSION "0.0.0")
-set(utilities_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
-set(utilities_RUN_DEPENDS "roscpp" "rospy" "std_msgs")
-set(utilities_BUILDTOOL_DEPENDS "catkin")
