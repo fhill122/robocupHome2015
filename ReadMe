@@ -1,0 +1,67 @@
+
+RobocupHome 2015
+
+To run:
+	Connect bluetooth
+	In each terminal, baxterConnect, baxter2015
+	Terminal 1: roslaunch openni_launch openni.launch
+	Terminal 2: rosrun rqt_reconfigure rqt_reconfigure , in camera/driver, set image_mode to sxga_15hz, close window, rosrun utilities gripperTestBoth
+	Terminal 3: rosrun baxter_interface joint_trajectory_action_server.py
+	Terminal 4: rosrun vision objectDete_detector
+	Terminal 5: rosrun manipulation move_plate_to_start_position_using_trajectory
+
+To do:
+	create a roslaunch for above
+
+
+***************
+
+Part: Ivan
+
+To souce and cd to the workspace (do it on each terminal tab/window)
+	1.baxterConnect
+	2.baxter2015
+
+#check baxter connection
+	baxterPing
+
+#to use kinect
+	1.roslaunch openni_launch openni.launch
+	2. rosrun rqt_reconfigure rqt_reconfigure , in camera/driver, set image_mode to sxga_15hz (can be closed)
+	2.to test: rosrun image_view image_view image:=/camera/rgb/image_color
+	
+#to use headcamera
+  1. close other camers: rosrun baxter_tools camera_control.py -c left_hand_camera
+  												rosrun baxter_tools camera_control.py -c right_hand_camera
+  2. publish camera topic:
+  												rosrun baxter_tools camera_control.py -o head_camera -r 1280x800
+  3. view image: rosrun image_view image_view image:=/cameras/head_camera/image
+
+
+#to use gripper
+	rostopic pub /gripper_test/request utilities/gripperTestRequest -1 '[0,now,base_link]' 0 3 
+	rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' a b 
+	a=0 1
+	b= 3 left 4 right 5 both
+
+#to locate the plate
+	1.roslaunch openni_launch openni.launch
+	2.rosrun vision object_detect
+	3.rosservice call /vision/get_plate_position
+	
+#to calibrate plate location
+	1. to write a function to calibrate
+	
+#to get end point position
+	rostopic echo /robot/limb/left/endpoint_state/pose/position
+	
+# trajectory server
+	rosrun baxter_interface joint_trajectory_action_server.py
+
+
+
+#miscellaneous
+	1. if control+c cannot terminate, control+\
+	
+	
+******************

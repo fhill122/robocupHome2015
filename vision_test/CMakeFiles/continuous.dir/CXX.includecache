@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/robocuphome/robocuphome2015/vision_test/continuous.cpp
+opencv2/objdetect/objdetect.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/objdetect/objdetect.hpp
+opencv2/highgui/highgui.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/highgui/highgui.hpp
+opencv2/imgproc/imgproc.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/imgproc/imgproc.hpp
+opencv2/calib3d/calib3d.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/calib3d/calib3d.hpp
+opencv2/nonfree/features2d.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/nonfree/features2d.hpp
+opencv2/core/core.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/core/core.hpp
+opencv2/features2d/features2d.hpp
+/home/robocuphome/robocuphome2015/vision_test/opencv2/features2d/features2d.hpp
+iostream
+-
+stdio.h
+-
+
