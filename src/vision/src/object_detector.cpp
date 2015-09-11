@@ -319,10 +319,10 @@ string findParameter(string line, string name){
     found = line.find(name+"=");
     
     if(found == std::string::npos){
-        cout<<"\n!!! ERROR, check Objects.ini format\n\n";
+        ROS_ERROR("Check Objects.ini format");
     }
     
-    string value =line.substr(name.length()+1,line.length()-2);
+    string value =line.substr(name.length()+1,string::npos);
     cout <<name<<": "<<value<<"\n";
     return value;
 }
