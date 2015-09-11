@@ -192,9 +192,9 @@ include_directories(
 # catkin_add_nosetests(test)
 
 
-add_executable(object_detector_v2 src/object_detector_v2.cpp)
-target_link_libraries ( object_detector_v2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
-add_dependencies(object_detector_v2 ${PROJECT_NAME}_generate_messages_cpp)
+#~ add_executable(object_detector_v2 src/object_detector_v2.cpp)
+#~ target_link_libraries ( object_detector_v2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )
+#~ add_dependencies(object_detector_v2 ${PROJECT_NAME}_generate_messages_cpp)
 
 add_executable(object_detector src/object_detector.cpp)
 target_link_libraries ( object_detector ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} )

@@ -1,6 +1,8 @@
 //calibration
 #define CALIBRATION_FILE "/src/vision/data/Calibration.ini"
 #define CALIBRATION_IMAGE "/src/vision/data/Calibration.jpg"
+#define OBJECTS_FILE "/src/vision/data/Objects.ini"
+
 #define TableBlockY  0.2
 #define TableBlockX  0.15
 #define BaseToPoint5  0.28

@@ -22,33 +22,98 @@
 #include "VisionConstants.h"
 #include "../../../path.h"
 
+#include "object_detector.h"
+
 
 using namespace std;
 using namespace cv;
+
+
 /** Global variables */
 string calibration_file_string((string)PROJECT_PATH+(string)CALIBRATION_FILE);
+string objects_file_string((string)PROJECT_PATH+(string)OBJECTS_FILE);
+vector <DesktopObject> objects;
+
 string window_name = "Good Matches & Object detection";
-Mat img_frame, img_object, descriptors_object;
+Mat img_frame, img_object;
 Mat H;//map image position to global position
-std::vector<KeyPoint> keypoints_object, keypoints_scene;
-//position_reference real
-Point2f pr_r1,pr_r2,pr_r3,pr_r4,pr_r5,pr_r6;
-//position_reference pixel//set to plate
-Point2f pr_p1(247.478,181.249),pr_p2(420.907,181.566),pr_p3(429.926,313.306),pr_p4(230.793,306.769);
 
 
-/** Function Headers */
-int detectAndDisplay( Mat frame, Mat obj, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res);
-void imageCallback(const sensor_msgs::ImageConstPtr& msg);//copy image from topic to global variable frame
-bool get_plate_position(vision::platePosition::Request &req, vision::platePosition::Response &res); //service function
-bool displayFrame(vision::platePosition::Request &req, vision::platePosition::Response &res);
-Mat readCalibration(ifstream &file);
+string findParameter(string line, string name){
+    size_t found;
+    found = line.find(name+"=");
+    
+    if(found == std::string::npos){
+        cout<<"\n!!! ERROR, check Objects.ini format\n\n";
+    }
+    
+    string value =line.substr(name.length()+1,line.length()-2);
+    cout <<name<<": "<<value<<"\n";
+    return value;
+}
 
-template <typename T> string tostr(const T& t) { 
-   ostringstream os; 
-   os<<t; 
-   return os.str(); 
-} 
+
+int readObjectsDataFile(ifstream &file, vector <DesktopObject> &objects){
+    string line;
+    
+    int numberLoaded=0;
+    while(true){
+        
+        getline(file,line);
+        //finished
+        
+        if(line == "[end]")
+            break;
+        else{
+            //name
+            string name = line.substr(1,line.length()-2);
+            cout <<"\nname: "<<name<<"\n";
+            
+            //height
+            getline(file,line);
+            double height = strtod( findParameter(line, "height").c_str(), NULL);
+            
+            //size
+            getline(file,line);
+            double size = strtod( findParameter(line, "size").c_str(), NULL);
+            
+            //number of images
+            getline(file,line);
+            int imageNo = atof( findParameter(line, "imageNo").c_str());
+            
+            //add object
+            objects.push_back( DesktopObject(name,height,size) );
+            
+            ////add object images, and match distance and threshold number for each image
+            for(int j=0;j< imageNo; j++){
+                string img_path = (string)PROJECT_PATH+(string)DATA_FOLDER+"/"+(string)name + tostr(j+1) + ".jpg";
+                cout<< img_path<<"\n";
+                Mat img = imread( img_path, CV_LOAD_IMAGE_GRAYSCALE );
+                imshow(name,img);
+                waitKey(0);
+                destroyWindow(name);
+                
+                //match of distance
+                getline(file,line);
+                float matchDistance = (float)strtod( findParameter(line, "matchDistance").c_str(), NULL);
+                getline(file,line);
+                int matchNumber = atof( findParameter(line, "matchNumber").c_str());
+                objects[numberLoaded].addImages(img, matchDistance, matchNumber);
+            }
+            
+            numberLoaded++;
+        }
+        
+        
+    }
+
+    printf("\nTotal %d objects loaded\n",(int)objects.size());
+    for(size_t i=0;i< objects.size();i++){
+        cout<<objects[i].getName()<<"\n";
+    }
+    cout<<"object data loading completed..\n\n";
+    return 0;
+}
 
 
 /**
@@ -73,17 +138,17 @@ int main( int argc, char** argv ){
     H=readCalibration(calibration_file);
     calibration_file.close();
     
-	//feature calculation of objct image
-	img_object = imread( (string)PROJECT_PATH+(string)DATA_FOLDER+(string)IMAGE_NAME, CV_LOAD_IMAGE_GRAYSCALE );
-	//-- Step 1: Detect the keypoints using SURF Detector
-	SiftFeatureDetector detector;
-	detector.detect( img_object, keypoints_object );;
-	//-- Step 2: Calculate descriptors (feature vectors)
-	SiftDescriptorExtractor extractor;
-	extractor.compute( img_object, keypoints_object, descriptors_object );
-    
+    ///read object database
+    printf("openning image database file: %s\n",objects_file_string.c_str());
+    ifstream objects_file(objects_file_string.c_str());
+    if (!objects_file.is_open()){
+        printf("ERROR: Unable to open objects file\n");
+        return 2;
+    }
+    readObjectsDataFile(objects_file,objects);
+    objects_file.close();
 	
-    //run service
+    ///run service
 	ros::ServiceServer service = nh.advertiseService("vision/get_plate_position", get_plate_position);
 	ros::ServiceServer service1 = nh.advertiseService("vision/displayFrame",displayFrame);
 	ROS_INFO("ready to detect the plate");
@@ -95,21 +160,15 @@ int main( int argc, char** argv ){
 /**
  * @function detectAndDisplay return 0 if find the object,1 if not
  */
-int detectAndDisplay( Mat img_frame, Mat img_object, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res, Mat H2)
+int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res, Mat H2)
 {
-    int minHessian = 400;
-	SiftFeatureDetector detector;
-	SiftDescriptorExtractor extractor;
+
 	std::vector<KeyPoint> keypoints_frame;
 	Mat descriptors_frame;
+    SIFTfeatureCalculate(img_frame, keypoints_frame,descriptors_frame);
 	
-	//-- Step 1: Detect the keypoints
-	detector.detect( img_frame, keypoints_frame );
-	
-	//-- Step 2: Calculate descriptors (feature vectors)
-	extractor.compute( img_frame, keypoints_frame, descriptors_frame );
-	
-	//-- Step 3: Matching descriptor vectors using FLANN matcher
+
+	///Matching descriptor vectors using FLANN matcher
 	FlannBasedMatcher matcher;
 	std::vector< DMatch > matches;
 	printf("size: descriptor_object rows: %d\t descriptors_frame rows: %d\n",descriptors_object.rows,descriptors_frame.rows);
@@ -135,11 +194,8 @@ int detectAndDisplay( Mat img_frame, Mat img_object, vector<KeyPoint> keypoints_
 	
 	//-- Draw only "good" matches (i.e. whose distance is less than 3*min_dist )
 	std::vector< DMatch > good_matches;
-	for( int i = 0; i < descriptors_object.rows; i++ )
-	{ 
-		//~ if( matches[i].distance < 3*max(0.02,min_dist) )
-		//~ { good_matches.push_back( matches[i]); }
-		if( matches[i].distance < 200)
+	for( int i = 0; i < descriptors_object.rows; i++ ){
+		if( matches[i].distance < matchDistance)
 		{ good_matches.push_back( matches[i]); }
 	}
 	printf("good matches size %d\n",(int)good_matches.size());
@@ -158,7 +214,7 @@ int detectAndDisplay( Mat img_frame, Mat img_object, vector<KeyPoint> keypoints_
 		obj.push_back( keypoints_object[ good_matches[i].queryIdx ].pt );
 		scene.push_back( keypoints_frame[ good_matches[i].trainIdx ].pt );
 	}
-	if (good_matches.size()<=9){
+	if (good_matches.size()<matchNumber){
 	  printf("insufficient good matches\n");
 	  imshow( window_name, img_matches );
 	  waitKey(0);
@@ -227,13 +283,44 @@ int detectAndDisplay( Mat img_frame, Mat img_object, vector<KeyPoint> keypoints_
     }
 }
 
+/// convert image topic to opencv image
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
 	img_frame=cv_bridge::toCvCopy(msg, "bgr8")->image;
 }
 
+/// service callback return position
 bool get_plate_position(vision::platePosition::Request &req, vision::platePosition::Response &res){
-	int detect_error = detectAndDisplay(img_frame, img_object,keypoints_object,descriptors_object,res, H);
+    
+    ///find if object is in database
+    int found = -1;
+    
+    for (size_t i=0; i<objects.size(); i++){
+        if(objects[i].getName() == req.objectName){
+            found = (int)i;
+            break;
+        }
+    }
+    
+    if(found == -1){
+        ROS_INFO("Not found in objects database!");
+        return false;
+    }
+
+    ///detect object
+    int detect_error =1;
+    vector<Mat> obj_images = objects[found].getImages();
+    //go through each image for that object
+    for (size_t i=0; i<obj_images.size(); i++){
+        std::vector<KeyPoint> keypoints_object;
+        Mat descriptors_object;
+        
+        SIFTfeatureCalculate(obj_images[i], keypoints_object,descriptors_object);
+        detect_error = detectAndDisplay(img_frame, obj_images[i], objects[found].getMatchDistance(i),objects[found].getMatchNumber(i),keypoints_object,descriptors_object,res, H);
+        //found
+        if (detect_error = 0)
+			break;
+    }
 	if (detect_error == 0)
 		ROS_INFO("match displayed");
 	else if (detect_error ==1)
@@ -251,6 +338,15 @@ bool displayFrame(vision::platePosition::Request &req, vision::platePosition::Re
 	//waitKey(1);
 	return true;
 }
+
+int SIFTfeatureCalculate(Mat &img, vector<KeyPoint> &keypoints,Mat &descriptors ){
+    SiftFeatureDetector detector;
+    SiftDescriptorExtractor extractor;
+    
+    detector.detect( img, keypoints );
+    extractor.compute( img, keypoints, descriptors );
+}
+
 
 Mat readCalibration(ifstream &file){
     std::vector<Point2f> ref_pixel_position;
