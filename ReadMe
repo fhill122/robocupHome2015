@@ -1,9 +1,22 @@
 
+RobocupHome 2015
 
+To run:
+	Connect bluetooth
+	In each terminal, baxterConnect, baxter2015
+	Terminal 1: roslaunch openni_launch openni.launch
+	Terminal 2: rosrun rqt_reconfigure rqt_reconfigure , in camera/driver, set image_mode to sxga_15hz, close window, rosrun utilities gripperTestBoth
+	Terminal 3: rosrun baxter_interface joint_trajectory_action_server.py
+	Terminal 4: rosrun vision objectDete_detector
+	Terminal 5: rosrun manipulation move_plate_to_start_position_using_trajectory
+
+To do:
+	create a roslaunch for above
 
 
 ***************
-Ivan
+
+Part: Ivan
 
 To souce and cd to the workspace (do it on each terminal tab/window)
 	1.baxterConnect
