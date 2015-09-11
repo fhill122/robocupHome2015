@@ -1,0 +1,10 @@
+(cl:defpackage vision-srv
+  (:use )
+  (:export
+   "PLATEPOSITION"
+   "<PLATEPOSITION-REQUEST>"
+   "PLATEPOSITION-REQUEST"
+   "<PLATEPOSITION-RESPONSE>"
+   "PLATEPOSITION-RESPONSE"
+  ))
+

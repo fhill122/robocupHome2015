@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "manipulation")
+set(manipulation_MAINTAINER "ivan <ivan@todo.todo>")
+set(manipulation_DEPRECATED "")
+set(manipulation_VERSION "0.0.0")
+set(manipulation_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
+set(manipulation_RUN_DEPENDS "roscpp" "rospy" "std_msgs")
+set(manipulation_BUILDTOOL_DEPENDS "catkin")

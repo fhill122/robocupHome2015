@@ -1,0 +1,11 @@
+Header header
+
+#Request types
+	uint8 CMD_OPEN = 0
+	uint8 CMD_CLOSE = 1
+	uint8 LEFT = 3
+	uint8 RIGHT = 4
+	unit8 BOTH = 5
+	
+uint8 cmd
+uint8 limb

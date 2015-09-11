@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "vision")
+set(vision_MAINTAINER "ivan <ivan@todo.todo>")
+set(vision_DEPRECATED "")
+set(vision_VERSION "0.0.0")
+set(vision_BUILD_DEPENDS "roscpp" "rospy" "std_msgs" "message_generation")
+set(vision_RUN_DEPENDS "message_runtime" "roscpp" "rospy" "std_msgs")
+set(vision_BUILDTOOL_DEPENDS "catkin")
