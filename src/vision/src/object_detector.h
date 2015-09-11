@@ -36,6 +36,8 @@ bool get_plate_position(vision::platePosition::Request &req, vision::platePositi
 bool displayFrame(vision::platePosition::Request &req, vision::platePosition::Response &res);
 int SIFTfeatureCalculate(Mat &img, vector<KeyPoint> &keypoints,Mat &descriptors );
 Mat readCalibration(ifstream &file);
+string findParameter(string line, string name);
+int readObjectsDataFile(ifstream &file, vector <DesktopObject> &objects);
 template <typename T> string tostr(const T& t) { 
    ostringstream os; 
    os<<t; 

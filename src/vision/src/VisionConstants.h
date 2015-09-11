@@ -10,6 +10,5 @@
 
 #define DATA_FOLDER "/src/vision/data"
 
-#define IMAGE_NAME "/Plate.jpg" //"id.jpg" "Plate.jpg"
-#define IMAGE_TOPIC "/camera/rgb/image_raw" //webcam: "usb_cam/image_raw", kinect:"/camera/rgb/image_color"
+#define IMAGE_TOPIC "usb_cam/image_raw" //webcam: "usb_cam/image_raw", kinect:"/camera/rgb/image_raw"
 

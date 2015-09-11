@@ -38,84 +38,6 @@ string window_name = "Good Matches & Object detection";
 Mat img_frame, img_object;
 Mat H;//map image position to global position
 
-
-string findParameter(string line, string name){
-    size_t found;
-    found = line.find(name+"=");
-    
-    if(found == std::string::npos){
-        cout<<"\n!!! ERROR, check Objects.ini format\n\n";
-    }
-    
-    string value =line.substr(name.length()+1,line.length()-2);
-    cout <<name<<": "<<value<<"\n";
-    return value;
-}
-
-
-int readObjectsDataFile(ifstream &file, vector <DesktopObject> &objects){
-    string line;
-    
-    int numberLoaded=0;
-    while(true){
-        
-        getline(file,line);
-        //finished
-        
-        if(line == "[end]")
-            break;
-        else{
-            //name
-            string name = line.substr(1,line.length()-2);
-            cout <<"\nname: "<<name<<"\n";
-            
-            //height
-            getline(file,line);
-            double height = strtod( findParameter(line, "height").c_str(), NULL);
-            
-            //size
-            getline(file,line);
-            double size = strtod( findParameter(line, "size").c_str(), NULL);
-            
-            //number of images
-            getline(file,line);
-            int imageNo = atof( findParameter(line, "imageNo").c_str());
-            
-            //add object
-            objects.push_back( DesktopObject(name,height,size) );
-            
-            ////add object images, and match distance and threshold number for each image
-            for(int j=0;j< imageNo; j++){
-                string img_path = (string)PROJECT_PATH+(string)DATA_FOLDER+"/"+(string)name + tostr(j+1) + ".jpg";
-                cout<< img_path<<"\n";
-                Mat img = imread( img_path, CV_LOAD_IMAGE_GRAYSCALE );
-                imshow(name,img);
-                waitKey(0);
-                destroyWindow(name);
-                
-                //match of distance
-                getline(file,line);
-                float matchDistance = (float)strtod( findParameter(line, "matchDistance").c_str(), NULL);
-                getline(file,line);
-                int matchNumber = atof( findParameter(line, "matchNumber").c_str());
-                objects[numberLoaded].addImages(img, matchDistance, matchNumber);
-            }
-            
-            numberLoaded++;
-        }
-        
-        
-    }
-
-    printf("\nTotal %d objects loaded\n",(int)objects.size());
-    for(size_t i=0;i< objects.size();i++){
-        cout<<objects[i].getName()<<"\n";
-    }
-    cout<<"object data loading completed..\n\n";
-    return 0;
-}
-
-
 /**
  * @function main
  */
@@ -318,7 +240,7 @@ bool get_plate_position(vision::platePosition::Request &req, vision::platePositi
         SIFTfeatureCalculate(obj_images[i], keypoints_object,descriptors_object);
         detect_error = detectAndDisplay(img_frame, obj_images[i], objects[found].getMatchDistance(i),objects[found].getMatchNumber(i),keypoints_object,descriptors_object,res, H);
         //found
-        if (detect_error = 0)
+        if (detect_error == 0)
 			break;
     }
 	if (detect_error == 0)
@@ -389,3 +311,82 @@ Mat readCalibration(ifstream &file){
     }
     return findHomography( ref_pixel_position, ref_real_position);
 }
+
+//function to used in ini read
+string findParameter(string line, string name){
+    size_t found;
+    found = line.find(name+"=");
+    
+    if(found == std::string::npos){
+        cout<<"\n!!! ERROR, check Objects.ini format\n\n";
+    }
+    
+    string value =line.substr(name.length()+1,line.length()-2);
+    cout <<name<<": "<<value<<"\n";
+    return value;
+}
+
+//object data ini reader
+int readObjectsDataFile(ifstream &file, vector <DesktopObject> &objects){
+    string line;
+    
+    int numberLoaded=0;
+    while(true){
+        
+        getline(file,line);
+        //finished
+        
+        if(line == "[end]")
+            break;
+        else{
+            //name
+            string name = line.substr(1,line.length()-2);
+            cout <<"\nname: "<<name<<"\n";
+            
+            //height
+            getline(file,line);
+            double height = strtod( findParameter(line, "height").c_str(), NULL);
+            
+            //size
+            getline(file,line);
+            double size = strtod( findParameter(line, "size").c_str(), NULL);
+            
+            //number of images
+            getline(file,line);
+            int imageNo = atof( findParameter(line, "imageNo").c_str());
+            
+            //add object
+            objects.push_back( DesktopObject(name,height,size) );
+            
+            ////add object images, and match distance and threshold number for each image
+            for(int j=0;j< imageNo; j++){
+                string img_path = (string)PROJECT_PATH+(string)DATA_FOLDER+"/"+(string)name + tostr(j+1) + ".jpg";
+                cout<< img_path<<"\n";
+                Mat img = imread( img_path, CV_LOAD_IMAGE_GRAYSCALE );
+                imshow(name,img);
+                waitKey(0);
+                destroyWindow(name);
+                
+                //match of distance
+                getline(file,line);
+                float matchDistance = (float)strtod( findParameter(line, "matchDistance").c_str(), NULL);
+                getline(file,line);
+                int matchNumber = atof( findParameter(line, "matchNumber").c_str());
+                objects[numberLoaded].addImages(img, matchDistance, matchNumber);
+            }
+            
+            numberLoaded++;
+        }
+        
+        
+    }
+
+    printf("\nTotal %d objects loaded\n",(int)objects.size());
+    for(size_t i=0;i< objects.size();i++){
+        cout<<objects[i].getName()<<"\n";
+    }
+    cout<<"object data loading completed..\n\n";
+    return 0;
+}
+
+
