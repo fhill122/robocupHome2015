@@ -64,6 +64,7 @@ int main( int argc, char** argv ){
 	image_transport::Subscriber sub = it.subscribe((string)IMAGE_TOPIC, 1, imageCallback);
 	
     ///read calibration data
+    printf("openning calibration file: %s\n",calibration_file_string.c_str());
     ifstream calibration_file(calibration_file_string.c_str());
     if (!calibration_file.is_open()){
         printf("ERROR: Unable to open calibration file\n");
