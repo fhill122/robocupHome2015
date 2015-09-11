@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 //~ #include "../../core/src/CommonConstants.h"
-#include "VisionConstants.h"
+#include "Constants.h"
 #include "../../../path.h"
 
 using namespace cv;

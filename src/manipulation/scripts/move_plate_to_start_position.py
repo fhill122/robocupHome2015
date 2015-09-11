@@ -10,7 +10,7 @@ from baxter_interface import CHECK_VERSION
 import os
 from vision.srv import *
 from common_functions import *
-from ManipulationConstants import *
+from Constants import *
 
 from geometry_msgs.msg import (
     PoseStamped,
