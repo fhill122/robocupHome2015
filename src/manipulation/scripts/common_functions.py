@@ -35,12 +35,12 @@ from baxter_core_msgs.srv import (
 )
 
 # get the positions of 4 rectangle corners via service calling, return [ [p1x,p1y],[p2x,p2y],[p3x,p3y],[p4x,p4y] ]
-def get_plate_position():
-    rospy.wait_for_service('/vision/get_plate_position')
+def get_object_position(object):
+    rospy.wait_for_service('/vision/get_object_position')
     try:
         #create service handler
-        srv_h=rospy.ServiceProxy('/vision/get_plate_position',platePosition)
-        resp = srv_h()
+        srv_h=rospy.ServiceProxy('/vision/get_object_position',platePosition)
+        resp = srv_h(object)
         return [ [resp.p1[0],resp.p1[1]], [resp.p2[0],resp.p2[1]], [resp.p3[0],resp.p3[1]],[resp.p4[0],resp.p4[1]] ]
     except rospy.ServiceException, e:
         print "service dall failed: %s"%e
@@ -48,7 +48,7 @@ def get_plate_position():
 # return the right or left short edge of an rectangle,
 # position = "left" or "right"
 # rectangle = [ [p1x,p1y],[p2x,p2y],[p3x,p3y],[p4x,p4y] ], and p1p4 p2p3 are the two short edges, this
-# can be obtained by calling get_plate_position
+# can be obtained by calling get_object_position
 def find_edge(position,rectangle):
     
     p1p4_y = rectangle[0][1] + rectangle[3][1]

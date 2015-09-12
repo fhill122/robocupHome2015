@@ -10,6 +10,10 @@ To run:
 	Terminal 4: rosrun vision objectDete_detector
 	Terminal 5: rosrun manipulation move_plate_to_start_position_using_trajectory
 
+to add/modify constants declaration:
+	edit src/core/AllConstants.ini
+	rosrun core generateAllConstants 
+
 To do:
 	create a roslaunch for above
 

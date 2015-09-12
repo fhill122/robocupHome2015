@@ -13,7 +13,7 @@
 #define DATA_FOLDER "/src/vision/data"
 
 //webcam: "usb_cam/image_raw", kinect:"/camera/rgb/image_raw"
-#define IMAGE_TOPIC "usb_cam/image_raw"
+#define IMAGE_TOPIC "/camera/rgb/image_raw"
 
 #define TableBlockY 0.2
 #define TableBlockX 0.15

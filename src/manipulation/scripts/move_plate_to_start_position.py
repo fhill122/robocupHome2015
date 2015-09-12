@@ -53,6 +53,7 @@ def single_arm_pick(limb,alpha):
     R_Z=-0.0230735969917
     R_W=0.553512708167
     
+    #plate final position
     p1x_final = 0.6491340398788452
     p1y_final = 0.18462590873241425
     p4x_final = 0.3690818250179291
@@ -62,7 +63,7 @@ def single_arm_pick(limb,alpha):
     rospy.on_shutdown(traj.stop)
     
     #get plate position
-    plate_position=get_plate_position()
+    plate_position=get_object_position("Plate")
     print "plate position %s"%(plate_position)
     
     ## move
