@@ -33,14 +33,6 @@ To souce and cd to the workspace (do it on each terminal tab/window)
 	1.roslaunch openni_launch openni.launch
 	2. rosrun rqt_reconfigure rqt_reconfigure , in camera/driver, set image_mode to sxga_15hz (can be closed)
 	2.to test: rosrun image_view image_view image:=/camera/rgb/image_color
-	
-#to use headcamera
-  1. close other camers: rosrun baxter_tools camera_control.py -c left_hand_camera
-  												rosrun baxter_tools camera_control.py -c right_hand_camera
-  2. publish camera topic:
-  												rosrun baxter_tools camera_control.py -o head_camera -r 1280x800
-  3. view image: rosrun image_view image_view image:=/cameras/head_camera/image
-
 
 #to use gripper
 	rostopic pub /gripper_test/request utilities/gripperTestRequest -1 '[0,now,base_link]' 0 3 

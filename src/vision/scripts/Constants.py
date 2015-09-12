@@ -19,3 +19,4 @@ TableBlockX = 0.15
 BaseToPoint5 = 0.28
 BaseX = 0.155
 CameraZ = 0.8
+CameraX = 0.287

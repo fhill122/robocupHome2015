@@ -82,7 +82,7 @@ int main( int argc, char** argv ){
 /**
  * @function detectAndDisplay return 0 if find the object,1 if not
  */
-int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res, Mat H2)
+int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res, Mat H2, double h)
 {
 
 	std::vector<KeyPoint> keypoints_frame;
@@ -143,7 +143,7 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
 	  
       return 1;
 	}
-    ///find the object
+    ///object founded
 	else{
 		Mat H = findHomography( obj, scene, CV_RANSAC );
 		printf("lala\n");
@@ -183,6 +183,12 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
         //mapping to global position
         std::vector<Point2f> plate_real_position;//to find
         perspectiveTransform( scene_corners, plate_real_position, H2);
+        //shift global position due to object height
+        double height = CameraZ- TableZ;
+        for (size_t i=0; i<plate_real_position.size(); i++){
+            plate_real_position[i].x = plate_real_position[i].x - h/height * (plate_real_position[i].x - CameraX);
+            plate_real_position[i].y = plate_real_position[i].y - h/height * plate_real_position[i].y;
+        }
         
         //print out
         string plate_point1 = "p1: "+tostr(plate_real_position[0].x)+" "+tostr(plate_real_position[0].y);
@@ -239,7 +245,10 @@ bool get_object_position(vision::platePosition::Request &req, vision::platePosit
         Mat descriptors_object;
         
         SIFTfeatureCalculate(obj_images[i], keypoints_object,descriptors_object);
-        detect_error = detectAndDisplay(img_frame, obj_images[i], objects[found].getMatchDistance(i),objects[found].getMatchNumber(i),keypoints_object,descriptors_object,res, H);
+        
+        detect_error = detectAndDisplay(img_frame, obj_images[i], objects[found].getMatchDistance(i),objects[found].getMatchNumber(i),
+            keypoints_object,descriptors_object,res, H, objects[found].getHeight() );
+        
         //found
         if (detect_error == 0)
 			break;

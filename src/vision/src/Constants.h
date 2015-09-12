@@ -20,3 +20,4 @@
 #define BaseToPoint5 0.28
 #define BaseX 0.155
 #define CameraZ 0.8
+#define CameraX 0.287

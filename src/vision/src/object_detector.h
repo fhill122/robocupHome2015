@@ -26,11 +26,12 @@ class DesktopObject {
         }
         float getMatchDistance(int i){ return matchDistance[i];}
         int getMatchNumber(int i){return matchNumber[i];}
+        double getHeight(){return height;}
         
 };
 
 /** Function Headers */
-int detectAndDisplay( Mat frame, Mat obj, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res);
+int detectAndDisplay( Mat frame, Mat obj, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res, Mat H2, double h);
 void imageCallback(const sensor_msgs::ImageConstPtr& msg);//copy image from topic to global variable frame
 bool get_object_position(vision::platePosition::Request &req, vision::platePosition::Response &res); //service function
 bool displayFrame(vision::platePosition::Request &req, vision::platePosition::Response &res);
