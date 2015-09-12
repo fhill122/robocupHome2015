@@ -48,10 +48,10 @@ To souce and cd to the workspace (do it on each terminal tab/window)
 	a=0 1
 	b= 3 left 4 right 5 both
 
-#to locate the plate
-	1.roslaunch openni_launch openni.launch
+#to locate an object in database
+	1.roslaunch openni_launch openni.launch, change resolution
 	2.rosrun vision object_detect
-	3.rosservice call /vision/get_plate_position
+	3.rosservice call /vision/get_object_position Object
 	
 #to calibrate plate location
 	1. to write a function to calibrate
