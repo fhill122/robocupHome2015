@@ -6,4 +6,8 @@ TableZ = -0.152
 GripperLength = 0.144
 
 ###Module specific
+#distance away to centre in Y direction
+GripperYoffset = 0.04
+#suitable gripping point above end in z direction
+GripperZoffset = 0.09
 

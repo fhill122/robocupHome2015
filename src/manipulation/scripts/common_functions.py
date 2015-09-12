@@ -34,6 +34,15 @@ from baxter_core_msgs.srv import (
     SolvePositionIKRequest,
 )
 
+# todo: use loop to accept any number of points instead of 4 points.
+# find the centre position of an object
+# points = [ [p1x,p1y],[p2x,p2y],[p3x,p3y],[p4x,p4y] ]
+# return [x,y]
+def find_centre(points):
+    x= 1.*(points[0][0] + points[1][0]+ points[2][0]+ points[3][0])/4
+    y= 1.*(points[0][1] + points[1][1]+ points[2][1]+ points[3][1])/4
+    return [x,y]
+    
 # get the positions of 4 rectangle corners via service calling, return [ [p1x,p1y],[p2x,p2y],[p3x,p3y],[p4x,p4y] ]
 def get_object_position(object):
     rospy.wait_for_service('/vision/get_object_position')
@@ -77,6 +86,28 @@ def get_quaternion(r_axis, r_angle):
     return [x,y,z,w]
 
 #~ to do, simplify find_gesture function, get quaternion from rotation matrix def get_quaternion_R ()
+
+# to do write right limb
+# find the rotation and offset distance to grip an cylinder
+# limb = "left" or "right", use which to pick up
+# centre = [x,y]
+# theta = the angle to rotate around z , rand
+# offset = distance to move away from the centre (unit m, scalar) , in gripper frame
+# return [x,y,z,w, offset_x, offset_y] ,offset in global frame
+def find_gesture_cylinder( limb, theta, offset_y_gripper, offset_z_gripper):
+    if limb == 'left':
+        Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
+        Ry = np.mat([ [cos(pi/2), 0, sin(pi/2)],[0, 1, 0],[-sin(pi/2), 0, cos(pi/2)] ])
+        R= Rz*Ry
+        
+        w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
+        x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
+        y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
+        z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
+        
+        offset = R*np.mat([ [0],[-offset_y_gripper],[-offset_z_gripper] ])
+        return [x,y,z,w, offset.item(0), offset.item(1)]
+    
 
 # find the rotation and offset distance to grip an edge
 # limb = "left" or "right", use which to pick up
