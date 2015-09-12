@@ -313,6 +313,7 @@ def ik_position_list(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
         limb_joints = resp.joints[0].position
     else:
         print("INVALID POSE - No Valid Joint Solution Found.")
+        return 2
 
     return limb_joints
 
