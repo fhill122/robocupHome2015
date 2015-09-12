@@ -19,5 +19,4 @@
 #define TableBlockX 0.15
 #define BaseToPoint5 0.28
 #define BaseX 0.155
-//to measure
-#define CameraZ 0.9
+#define CameraZ 0.8

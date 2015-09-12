@@ -18,5 +18,4 @@ TableBlockY = 0.2
 TableBlockX = 0.15
 BaseToPoint5 = 0.28
 BaseX = 0.155
-#to measure
-CameraZ = 0.9
+CameraZ = 0.8
