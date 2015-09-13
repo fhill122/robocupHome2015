@@ -92,13 +92,40 @@ def get_quaternion(r_axis, r_angle):
 # limb = "left" or "right", use which to pick up
 # centre = [x,y]
 # theta = the angle to rotate around z , rand
+# alpha = the angle to rotate around y , rand, around radians(90) when pick up, radians(180) for final step of pouring, or use another function
 # offset = distance to move away from the centre (unit m, scalar) , in gripper frame
 # return [x,y,z,w, offset_x, offset_y] ,offset in global frame
-def find_gesture_cylinder( limb, theta, offset_y_gripper, offset_z_gripper):
+def find_gesture_cylinder( limb, theta, alpha, offset_y_gripper, offset_z_gripper):
     if limb == 'left':
         Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
-        Ry = np.mat([ [cos(pi/2), 0, sin(pi/2)],[0, 1, 0],[-sin(pi/2), 0, cos(pi/2)] ])
+        y_angle = alpha
+        Ry = np.mat([ [cos(y_angle), 0, sin(y_angle)],[0, 1, 0],[-sin(y_angle), 0, cos(y_angle)] ])
         R= Rz*Ry
+        
+        w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
+        x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
+        y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
+        z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
+        
+        offset = R*np.mat([ [0],[-offset_y_gripper],[-offset_z_gripper] ])
+        return [x,y,z,w, offset.item(0), offset.item(1)]
+        
+# to do write right limb
+# find the rotation and offset distance to pour an cylinder
+# limb = "left" or "right", use which to pick up
+# centre = [x,y]
+# theta = the angle to rotate around z , rand
+# alpha = the angle to rotate around y , rand, around radians(90) when pick up
+# gama = the angle to rotate around z again , rand, around radians(+-90) when pour
+# offset = distance to move away from the centre (unit m, scalar) , in gripper frame
+# return [x,y,z,w, offset_x, offset_y] ,offset in global frame
+def find_gesture_cylinder_pour( limb, theta, alpha,gamma, offset_y_gripper, offset_z_gripper):
+    if limb == 'left':
+        Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
+        y_angle = alpha
+        Ry = np.mat([ [cos(y_angle), 0, sin(y_angle)],[0, 1, 0],[-sin(y_angle), 0, cos(y_angle)] ])
+        Rz2 = np.mat([ [cos(gamma), -sin(gamma), 0],[sin(gamma), cos(gamma), 0],[0, 0, 1] ])
+        R= Rz*Ry*Rz2
         
         w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
         x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
@@ -312,9 +339,9 @@ def ik_position_list(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
                    }.get(resp_seeds[0], 'None')
         limb_joints = resp.joints[0].position
     else:
-        print("INVALID POSE - No Valid Joint Solution Found.")
+        print("INVALID POSE - No Valid Joint Solution Found.\n")
         return 2
-
+    print("IK solution Found.\n")
     return limb_joints
 
 # adapted from /baxter_examples/scripts/joint_trajectory_client
