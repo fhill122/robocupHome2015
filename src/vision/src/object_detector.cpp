@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <string>
+#include <cmath>
 
 #include "vision/platePosition.h"
 #include "Constants.h"
@@ -146,7 +147,6 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
     ///object founded
 	else{
 		Mat H = findHomography( obj, scene, CV_RANSAC );
-		printf("lala\n");
 		
 		//-- Get the corners from the image_1 ( the object to be "detected" )
 		std::vector<Point2f> obj_corners(4);
@@ -155,6 +155,24 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
 		std::vector<Point2f> scene_corners(4);
 		
 		perspectiveTransform( obj_corners, scene_corners, H);
+        
+        // check if size in range
+        double longEdge1 = norm( scene_corners[0] - scene_corners[1] );
+        double longEdge2 = norm( scene_corners[2] - scene_corners[3] );
+        double shortEdge1 = norm( scene_corners[0] - scene_corners[3] );
+        double shortEdge2 = norm( scene_corners[1] - scene_corners[2] );
+        
+        if (longEdge1 > 3*img_object.cols || longEdge2 > 3*img_object.cols && shortEdge1 > 3*img_object.rows && shortEdge2 > 3*img_object.rows){
+        }
+        else{
+              //~ printf("Size not match!!\n");
+              //~ imshow( window_name, img_matches );
+              //~ waitKey(0);
+              //~ 
+              //~ return 1;
+        }
+        //~ Point
+        //~ float longEdge1 = pow( (scene_corners[0].x - scene_corners[1].x) , 2) + pow( (scene_corners[0].y - scene_corners[1].y) , 2);
 		
 		
 		//-- Draw lines between the corners (the mapped object in the scene - image_2 )
