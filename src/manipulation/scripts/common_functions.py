@@ -341,7 +341,7 @@ def ik_position_list(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
     else:
         print("INVALID POSE - No Valid Joint Solution Found.\n")
         return 2
-    print("IK solution Found.\n")
+    #~ print("IK solution Found.\n")
     return limb_joints
 
 # adapted from /baxter_examples/scripts/joint_trajectory_client
@@ -385,6 +385,14 @@ class Trajectory(object):
         self._goal = FollowJointTrajectoryGoal()
         self._goal.trajectory.joint_names = [limb + '_' + joint for joint in \
             ['s0', 's1', 'e0', 'e1', 'w0', 'w1', 'w2']]
+
+def moveTrajectory(limb, jointPosition_list, duration):
+    traj = Trajectory(limb)     
+    for i in range(len(jointPosition_list)):
+        traj.add_point(jointPosition_list[i], duration[i])
+    traj.start()
+    traj.wait(duration[i]+5)
+    traj.clear(limb)
     
 
 

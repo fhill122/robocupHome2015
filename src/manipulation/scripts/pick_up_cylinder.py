@@ -25,7 +25,10 @@ from baxter_core_msgs.srv import (
     SolvePositionIK,
     SolvePositionIKRequest,
 )
-    
+
+X_START=0.4
+Y_START=0.63
+Z_START=0.4
 Z_PICK = TableZ + 0.075
 
 def main():
@@ -37,16 +40,32 @@ def main():
     rs.enable()
     traj = Trajectory("left")
     rospy.on_shutdown(traj.stop)
+    limb = "left"
     
-    
+    ##test rotate bottle
+    rotateBottle(limb,"CoffeeCup")
+    rospy.sleep(3000)
     
     ##pick up
-    single_arm_pick("left","CoffeeCup")
+    endPosition = single_arm_pick(limb,"CoffeeCup")
     
-    #~ single_arm_pick("left","WaterBottle")
+    ##move to fixed position
+    theta = radians(-90)
+    alpha = radians(90)
+    x=0.4
+    y=0.02
+    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
+    jointPosition_list= [ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK +0.2,r_x,r_y,r_z,r_w) ]
+    duration=[4]
+    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
+    jointPosition_list.append (ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w) )
+    duration.append (duration[-1]+2)
+    moveTrajectory(limb,jointPosition_list,duration)
+      
+    os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
+    rospy.sleep(30)
     
     ### move up
-    limb = "left"
     theta = radians(-90)
     alpha = radians(95)
     x=0.55
@@ -64,7 +83,7 @@ def main():
     
     ###pause
     jointPosition_list.append ( ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.15,r_x,r_y,r_z,r_w) )
-    duration.append (duration[-1]+9)
+    duration.append (duration[-1]+10)
     
     ### unpour
     [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
@@ -88,7 +107,24 @@ def main():
     
 
     return 0
+
+def rotateBottle(limb,object):
+    #~ bottlePosition = get_object_position(object)
+    y_angle = radians(179)
+    Ry = np.mat([ [cos(y_angle), 0, sin(y_angle)],[0, 1, 0],[-sin(y_angle), 0, cos(y_angle)] ])
+    theta = radians(90)
+    Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
     
+    R= Ry*Rz
+    
+    w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
+    x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
+    y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
+    z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
+    
+    position_list = [ik_position_list(limb,X_START,Y_START,Z_START,x,y,z,w)]
+    moveTrajectory(limb,position_list,[5])
+
 ## remember to import TableZ, GripperLength before calling this function
 # alpha in degree, lim= "left" or "right"
 def single_arm_pick(limb,object):
@@ -186,6 +222,10 @@ def single_arm_pick(limb,object):
     traj.clear(limb)
     
     os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 1 3")
+    
+    ##up
+    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,90,  0.75*GripperYoffset, 0.9*GripperZoffset)
+    jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.2,r_x,r_y,r_z,r_w))
     
     
     return 0
