@@ -25,9 +25,9 @@ from baxter_core_msgs.srv import (
 )
 
 ##constant
-X_START=0.827999472618103
-Y_START=0.04035802558064461
-Z_START=0.03229863286018372
+X_START=0.627999472618103
+Y_START=  0.14035802558064461
+Z_START=0.33229863286018372
 
 def ik_test(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
     ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
@@ -118,7 +118,7 @@ def main():
     rs.enable()
     
     r_axis=[0,1,0]
-    r_angle=pi
+    r_angle=0
     [x,y,z,w]=get_quaternion(r_axis, r_angle)
     
     move_arm('left',ik_test("left",X_START,Y_START,Z_START,x,y,z,w),800)
