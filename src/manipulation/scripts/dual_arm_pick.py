@@ -62,7 +62,7 @@ def main():
     #lower z position
     traj.add_point(ik_position_list(limb,(p1x+p4x)/2+1.2*offset_x,(p1y+p4y)/2+1.2*offset_y,Z_PICK,r_x,r_y,r_z,r_w), 7.0)
     #closer
-    traj.add_point(ik_position_list(limb,(p1x+p4x)/2+0.7*offset_x,(p1y+p4y)/2+0.7*offset_y,Z_PICK,r_x,r_y,r_z,r_w), 8.0)
+    traj.add_point(ik_position_list(limb,(p1x+p4x)/2+0.85*offset_x,(p1y+p4y)/2+0.85*offset_y,Z_PICK,r_x,r_y,r_z,r_w), 8.0)
     
     limb = "right"
     traj2 = Trajectory(limb)
@@ -73,7 +73,7 @@ def main():
     #lower z position
     traj2.add_point(ik_position_list(limb,(p1x+p4x)/2+1.2*offset_x,(p1y+p4y)/2+1.2*offset_y,Z_PICK,r_x,r_y,r_z,r_w), 7.0)
     #closer
-    traj2.add_point(ik_position_list(limb,(p1x+p4x)/2+0.7*offset_x,(p1y+p4y)/2+0.7*offset_y,Z_PICK,r_x,r_y,r_z,r_w), 8.0)
+    traj2.add_point(ik_position_list(limb,(p1x+p4x)/2+0.85*offset_x,(p1y+p4y)/2+0.85*offset_y,Z_PICK,r_x,r_y,r_z,r_w), 8.0)
     
     traj.start()
     traj2.start()
@@ -83,6 +83,20 @@ def main():
     traj.clear("left")
     os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 1 5")
     
+    # up 
+    traj2.add_point(ik_position_list("right",(p1x+p4x)/2+0.7*offset_x +0.1,(p1y+p4y)/2+0.7*offset_y +0.05,Z_PICK+0.2,r_x,r_y,r_z,r_w), 4.0)
+    [[p1x,p1y],[p4x,p4y]]=find_edge("left",plate_position)
+    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture("left",[[p1x,p1y],[p4x,p4y]],alpha, GripperLength*cos(radians(alpha)) )
+    traj.add_point(ik_position_list("left",(p1x+p4x)/2+0.7*offset_x +0.1,(p1y+p4y)/2+0.7*offset_y +0.05,Z_PICK+0.2,r_x,r_y,r_z,r_w), 4.0)
+    traj.start()
+    traj2.start()
+    
+    
+    
+    traj.wait(20)
+    traj2.wait(20)
+    traj2.clear("right")
+    traj.clear("left")
     
 
     return 0

@@ -38,96 +38,22 @@ def main():
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
     rs.enable()
-    traj = Trajectory("left")
-    rospy.on_shutdown(traj.stop)
+
     limb = "left"
     
-    ##test rotate bottle
-    rotateBottle(limb,"CoffeeCup")
-    rospy.sleep(3000)
-    
-    ##pick up
-    endPosition = single_arm_pick(limb,"CoffeeCup")
-    
-    ##move to fixed position
-    theta = radians(-90)
-    alpha = radians(90)
-    x=0.4
-    y=0.02
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
-    jointPosition_list= [ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK +0.2,r_x,r_y,r_z,r_w) ]
-    duration=[4]
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
-    jointPosition_list.append (ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w) )
-    duration.append (duration[-1]+2)
-    moveTrajectory(limb,jointPosition_list,duration)
-      
+    ##grip
+    endPosition = find_grip_cylinder(limb,"CoffeeCup")
+    #release
     os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
-    rospy.sleep(30)
-    
-    ### move up
-    theta = radians(-90)
-    alpha = radians(95)
-    x=0.55
-    y=0.3
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
-    jointPosition_list = [ ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.15,r_x,r_y,r_z,r_w) ]
-    duration = [7]
-    
-    ### pour
-    gamma = radians(-100)
-    rospy.sleep(2)
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder_pour(limb, theta,alpha, gamma, GripperYoffset, GripperZoffset)
-    jointPosition_list.append ( ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.15,r_x,r_y,r_z,r_w) )
-    duration.append (duration[-1]+10)
-    
-    ###pause
-    jointPosition_list.append ( ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.15,r_x,r_y,r_z,r_w) )
-    duration.append (duration[-1]+10)
-    
-    ### unpour
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
-    jointPosition_list.append (ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.15,r_x,r_y,r_z,r_w) )
-    duration.append (duration[-1]+3)
-    
-    ###place
-    x=0.45
-    y=0.35
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, GripperYoffset, GripperZoffset)
-    jointPosition_list.append (ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w) )
-    duration.append (duration[-1]+3)
-    
-    for i in range(len(jointPosition_list)):
-		traj.add_point(jointPosition_list[i], duration[i])
-    traj.start()
-    traj.wait(30.0)
-    traj.clear(limb)
-    
-    os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
-    
 
     return 0
 
-def rotateBottle(limb,object):
-    #~ bottlePosition = get_object_position(object)
-    y_angle = radians(179)
-    Ry = np.mat([ [cos(y_angle), 0, sin(y_angle)],[0, 1, 0],[-sin(y_angle), 0, cos(y_angle)] ])
-    theta = radians(90)
-    Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
+
     
-    R= Ry*Rz
-    
-    w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
-    x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
-    y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
-    z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
-    
-    position_list = [ik_position_list(limb,X_START,Y_START,Z_START,x,y,z,w)]
-    moveTrajectory(limb,position_list,[5])
 
 ## remember to import TableZ, GripperLength before calling this function
 # alpha in degree, lim= "left" or "right"
-def single_arm_pick(limb,object):
+def find_grip_cylinder(limb,object):
     
     traj = Trajectory(limb)
     ##constants
@@ -136,9 +62,6 @@ def single_arm_pick(limb,object):
     #object radius adjustment
     r=0
     offset = 0.1
-    X_START=0.4
-    Y_START=0.63
-    Z_START=0.4
     R_X=0.603489643517
     R_Y=0.634442665138
     R_Z=-0.335770984639
@@ -150,8 +73,6 @@ def single_arm_pick(limb,object):
     traj.start()
     traj.wait(10.0)
     traj.clear(limb)
-
-    #~ os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
     
     #get plate position
     [x,y]=find_centre(get_object_position(object))

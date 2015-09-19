@@ -90,7 +90,14 @@ def ik_test(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
         limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
     else:
         print("INVALID POSE - No Valid Joint Solution Found.")
-
+    limb_joints['left_s1']=0
+    limb_joints['left_s0']=0
+    limb_joints['left_w0']=0
+    limb_joints['left_w1']=0
+    limb_joints['left_w2']=0
+    limb_joints['left_e0']=0
+    limb_joints['left_e1']=0
+    print limb_joints
     return (limb_joints)
     
 def move_arm(lim,position,i_max,):

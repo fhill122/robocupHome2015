@@ -30,6 +30,7 @@ Arduino code is at:
 #include "utilities/gripperTestStatus.h"
 
 #define OPEN 0x00
+//0xFF
 #define CLOSE 0xFF
 
 using namespace std;

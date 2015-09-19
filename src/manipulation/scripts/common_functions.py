@@ -45,6 +45,7 @@ def find_centre(points):
     
 # get the positions of 4 rectangle corners via service calling, return [ [p1x,p1y],[p2x,p2y],[p3x,p3y],[p4x,p4y] ]
 def get_object_position(object):
+    print "check image\n"
     rospy.wait_for_service('/vision/get_object_position')
     try:
         #create service handler
@@ -84,6 +85,28 @@ def get_quaternion(r_axis, r_angle):
     z =r_axis[2] * sin(r_angle/2)
     w =cos(r_angle/2)
     return [x,y,z,w]
+    
+#get quaternion from rotation matrix
+def R_to_quaternion(R):
+    w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
+    x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
+    y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
+    z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
+    return [x,y,z,w]
+
+#get rotation matrix
+# axis ='x' or 'y' or 'z'
+# theta in radians
+# return Rx or Ry or Rz
+def get_R(axis,theta):
+    if(axis =='x'):
+        R=np.mat([ [1, 0, 0],[0 ,cos(theta), -sin(theta)],[0, sin(theta), cos(theta)] ])
+    elif(axis =='y'):
+        R=np.mat([ [cos(theta), 0, sin(theta)],[0, 1, 0],[-sin(theta), 0, cos(theta)] ])
+    elif(axis =='z'):
+        R=np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
+        
+    return R
 
 #~ to do, simplify find_gesture function, get quaternion from rotation matrix def get_quaternion_R ()
 

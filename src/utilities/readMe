@@ -1,0 +1,41 @@
+Ivan:
+	##for bluetooth related problems
+
+	in /etc/bluetooth/rfcomm.conf:
+			rfcomm0 {
+			#	# Automatically bind the device at startup
+				bind no;
+			#
+			#	# Bluetooth address of the device
+	
+			device 20:15:03:25:04:6;
+			#
+			#	# RFCOMM channel for the connection
+				channel	1;
+			#
+			#	# Description of the connection
+				comment "Serial Port";
+			}
+
+			rfcomm1 {
+			#	# Automatically bind the device at startup
+				bind no;
+			#
+			#	# Bluetooth address of the device
+				device 00:14:04:01:38:16;
+			#
+			#	# RFCOMM channel for the connection
+				channel	1;
+			#
+			#	# Description of the connection
+				comment "Serial Port";
+			}
+		
+
+	rfcomm command in terminal:
+	rfcomm connect 0
+	ls /dev/rfcom*
+	screen /dev/rfcomm0
+	
+	sudo rfcomm release /dev/rfcomm0
+	sudo rfcomm connect /dev/rfcomm0 20:15:03:25:04:6

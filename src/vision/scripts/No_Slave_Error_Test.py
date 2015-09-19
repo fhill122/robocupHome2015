@@ -79,7 +79,7 @@ def tray_to_end_effector(positions):
     y_rot = 0.5
     z_rot = 0.5 
     #tray dimensions
-    tray_l = (36.4+11)/200 #tray width in metres
+    tray_l = (36.4+26)/200 #tray width in metres
     tray_h = (28.3/100)/2 #tray length in metres
     
     for i in range(len(positions)):
@@ -401,11 +401,12 @@ def main():
     #positions.append([0.6, 0.0, 0.3, alpha])
     #positions.append([0.6, 0.0, 0.3, -alpha]) 
     positions.append([0.5, 0.0, 0.0, 0])
-    positions.append([0.5, 0.2, 0, 0])
-    positions.append([0.5, 0.2, 0.5, 0])
-    positions.append([0.5, 0.2, 0.5, 0])
-    positions.append([0.5, -0.2, 0.5, 0])
-    positions.append([0.5, -0.2, 0.0, 0])
+    positions.append([0.5, 0.19, 0, 0])
+    positions.append([0.5, 0.19, 0.5, 0])
+    positions.append([0.5, 0.19, 0.5, 0])
+    positions.append([0.5, -0.19, 0.5, 0])
+    positions.append([0.5, -0.19
+    , 0.0, 0])
     positions.append([0.5, 0.0, 0, 0]) 
                   
     f.write("%s\n" % positions)

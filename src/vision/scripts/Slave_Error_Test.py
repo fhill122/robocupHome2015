@@ -98,7 +98,7 @@ def tray_to_end_effector(positions):
     y_rot = 0.5
     z_rot = 0.5 
     #tray dimensions
-    tray_l = (36.4+11)/200 #tray width in metres + Offset for grippers
+    tray_l = (36.4+26)/200 #tray width in metres + Offset for grippers
     tray_h = (28.3/100)/2 #tray length in metres
     
     for i in range(len(positions)):
@@ -107,15 +107,8 @@ def tray_to_end_effector(positions):
         z = positions[i][2]
         theta = positions[i][3]
         phi = 3.14158*theta/180 #convert to radians       
-        if theta==0.0:
-            #Faster to just hard code when we want the "normal pose"
-            ql = [0.7071, 0.0, 0.0, 0.7071]
-            qr = [-0.7071, 0.0, 0.0, 0.7071]
-        else:
-            #if there is an angle need to find out the orientation of the end effectors 
-            q_both = tray_orientation(phi)
-            qr = q_both[0]
-            ql = q_both[1]
+        ql = [0.7071, 0.0, 0.0, 0.7071]
+        qr = [-0.7071, 0.0, 0.0, 0.7071]
 
         if theta >= 0:
             X_L.append([x - tray_l*sin(phi), y + tray_l*cos(phi), z, ql[0], ql[1], ql[2], ql[3]])
@@ -387,9 +380,9 @@ def left_to_right(left_pose):
     y=left_pose['position'][1]
     z=left_pose['position'][2]
     
-    x2=x+v_norm[0]*(0.36+0.12)
-    y2=y+v_norm[1]*(0.36+0.12)
-    z2=z+v_norm[2]*(0.36+0.12)
+    x2=x+v_norm[0]*(0.36+0.26)
+    y2=y+v_norm[1]*(0.36+0.26)
+    z2=z+v_norm[2]*(0.36+0.26)
     
     
     
@@ -400,7 +393,7 @@ def left_to_right(left_pose):
     
     #q_right=tilt_down(q_right, 50*math.pi/180)*q_right
     
-    right_pose=[x2,y2,z2,q_right.x,q_right.y,q_right.z,q_right.w]
+    right_pose=[x2,y2,z2,-0.7071, 0.0, 0.0, 0.7071]
     print "left pose: ",left_pose,"\n"
     print "right pose: ",right_pose
     
@@ -509,11 +502,11 @@ def main():
     #positions.append([0.6, 0.0, 0.3, alpha])
     #positions.append([0.6, 0.0, 0.3, -alpha]) 
     positions.append([0.5, 0.0, 0.0, 0])
-    positions.append([0.5, 0.2, 0, 0])
-    positions.append([0.5, 0.2, 0.5, 0])
-    positions.append([0.5, 0.2, 0.5, 0])
-    positions.append([0.5, -0.2, 0.5, 0])
-    positions.append([0.5, -0.2, 0.0, 0])
+    positions.append([0.5, 0.19, 0, 0])
+    positions.append([0.5, 0.19, 0.5, 0])
+    positions.append([0.5, 0.19, 0.5, 0])
+    positions.append([0.5, -0.19, 0.5, 0])
+    positions.append([0.5, -0.19, 0.0, 0])
     positions.append([0.5, 0.0, 0, 0]) 
                   
     f.write("%s\n" % positions)
