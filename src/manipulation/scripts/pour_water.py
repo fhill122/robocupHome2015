@@ -18,15 +18,23 @@ from common_functions import *
 from Constants import *
 from rotate_object import *
 
+from utilities.msg import *
+
 Z_START=0.4
 Z_PICK = TableZ + 0.075
 
 def main():
     #initiate ros, robot, assign variables...
-    rospy.init_node("rsdk_set_position")
+    rospy.init_node("pour_water")
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
     rs.enable()
+    
+    move_keep_orientation("left",0,-0.4,0,3)
+    
+    #~ rospy.sleep(50000)
+    gripper('both','close')
+    rospy.spin()
 
     ##move to fixed position
     theta = radians(-90)

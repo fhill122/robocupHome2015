@@ -25,8 +25,8 @@ from baxter_core_msgs.srv import (
 )
 
 ##constant
-X_START=0.627999472618103
-Y_START=  0.14035802558064461
+X_START=(0.89+0.46)/2
+Y_START=   0.0100350771099329
 Z_START=0.33229863286018372
 
 def ik_test(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
@@ -90,13 +90,13 @@ def ik_test(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
         limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
     else:
         print("INVALID POSE - No Valid Joint Solution Found.")
-    limb_joints['left_s1']=0
-    limb_joints['left_s0']=0
-    limb_joints['left_w0']=0
-    limb_joints['left_w1']=0
-    limb_joints['left_w2']=0
-    limb_joints['left_e0']=0
-    limb_joints['left_e1']=0
+    #~ limb_joints['left_s1']=0
+    #~ limb_joints['left_s0']=0
+    #~ limb_joints['left_w0']=0
+    #~ limb_joints['left_w1']=0
+    #~ limb_joints['left_w2']=0
+    #~ limb_joints['left_e0']=0
+    #~ limb_joints['left_e1']=0
     print limb_joints
     return (limb_joints)
     
@@ -124,11 +124,11 @@ def main():
     init_state = rs.state().enabled
     rs.enable()
     
-    r_axis=[0,1,0]
-    r_angle=0
+    r_axis=[1,0,0]
+    r_angle=pi
     [x,y,z,w]=get_quaternion(r_axis, r_angle)
     
-    move_arm('left',ik_test("left",X_START,Y_START,Z_START,x,y,z,w),800)
+    move_arm('left',ik_test("left",X_START,Y_START,Z_START-0.3,x,y,z,w),800)
 
     return 0
 

@@ -29,7 +29,7 @@ from baxter_core_msgs.srv import (
 )
 def main():
     #initiate ros, robot, assign variables...
-    rospy.init_node("rsdk_set_position")
+    rospy.init_node("dual_arm_pick")
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
     rs.enable()

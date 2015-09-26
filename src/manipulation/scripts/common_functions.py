@@ -12,6 +12,7 @@ from copy import copy
 import actionlib
 
 from vision.srv import *
+from utilities.msg import *
 
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
@@ -28,6 +29,10 @@ from geometry_msgs.msg import (
     Quaternion,
 )
 from std_msgs.msg import Header
+
+from baxter_core_msgs.msg import (
+    EndpointState
+)
 
 from baxter_core_msgs.srv import (
     SolvePositionIK,
@@ -119,19 +124,26 @@ def get_R(axis,theta):
 # offset = distance to move away from the centre (unit m, scalar) , in gripper frame
 # return [x,y,z,w, offset_x, offset_y] ,offset in global frame
 def find_gesture_cylinder( limb, theta, alpha, offset_y_gripper, offset_z_gripper):
-    if limb == 'left':
-        Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
-        y_angle = alpha
-        Ry = np.mat([ [cos(y_angle), 0, sin(y_angle)],[0, 1, 0],[-sin(y_angle), 0, cos(y_angle)] ])
-        R= Rz*Ry
-        
-        w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
-        x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
-        y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
-        z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
-        
-        offset = R*np.mat([ [0],[-offset_y_gripper],[-offset_z_gripper] ])
-        return [x,y,z,w, offset.item(0), offset.item(1)]
+    #for left and right hands:
+    #rotation change Rz Rx
+    #offset change y 
+    
+    if limb == 'right':
+        theta = -theta
+    Rz = np.mat([ [cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1] ])
+    y_angle = alpha
+    Ry = np.mat([ [cos(y_angle), 0, sin(y_angle)],[0, 1, 0],[-sin(y_angle), 0, cos(y_angle)] ])
+    R= Rz*Ry
+    
+    w =1.*sqrt(1+R.item(0,0)+R.item(1,1)+R.item(2,2)) /2
+    x =1.*(R.item(2,1)-R.item(1,2)) / (4*w)
+    y =1.*(R.item(0,2)-R.item(2,0)) / (4*w)
+    z =1.*(R.item(1,0)-R.item(0,1)) / (4*w)
+    
+    offset = R*np.mat([ [0],[-offset_y_gripper],[-offset_z_gripper] ])
+    if limb == 'right':
+        offset = R*np.mat([ [0],[offset_y_gripper],[-offset_z_gripper] ])
+    return [x,y,z,w, offset.item(0), offset.item(1)]
         
 # to do write right limb
 # find the rotation and offset distance to pour an cylinder
@@ -233,6 +245,22 @@ def move_both_arms(position_l,position_r,i_max,):
     print "moved"
     return 0
 
+
+def get_current_pose(limb):
+    msg = rospy.wait_for_message("robot/limb/"+limb+"/endpoint_state", EndpointState)
+    currentPose = [msg.pose.position.x, msg.pose.position.y, msg.pose.position.z,\
+        msg.pose.orientation.x,msg.pose.orientation.y,msg.pose.orientation.z,msg.pose.orientation.w]
+    return currentPose
+
+
+# move while keep the endpoint orientation
+def move_keep_orientation(limb,delt_x,delt_y,delt_z,time):
+    [x,y,z,rx,ry,rz,rw] = get_current_pose(limb)
+    moveTrajectory(limb,[ik_position_list(limb, x+delt_x, y+delt_y,z+delt_z,rx,ry,rz,rw)],[time])
+    
+    return
+    
+
 def ik_test(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
     ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
     iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
@@ -296,7 +324,7 @@ def ik_test(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
         print(resp.joints[0].position)
         print("*******************\n")
     else:
-        print("INVALID POSE - No Valid Joint Solution Found.")
+        rospy.logwarn("INVALID POSE - No Valid Joint Solution Found.")
 
     return (limb_joints)
     
@@ -362,9 +390,9 @@ def ik_position_list(limb, p_x,p_y,p_z,r_x,r_y,r_z,r_w):
                    }.get(resp_seeds[0], 'None')
         limb_joints = resp.joints[0].position
     else:
-        print("INVALID POSE - No Valid Joint Solution Found.\n")
+        rospy.logwarn("INVALID POSE - No Valid Joint Solution Found.\n")
         return 2
-    #~ print("IK solution Found.\n")
+    print("IK solution Found.\n")
     return limb_joints
 
 # adapted from /baxter_examples/scripts/joint_trajectory_client
@@ -414,8 +442,38 @@ def moveTrajectory(limb, jointPosition_list, duration):
     for i in range(len(jointPosition_list)):
         traj.add_point(jointPosition_list[i], duration[i])
     traj.start()
+    #the total time it will wait, then exit no matter finish or no
     traj.wait(duration[i]+5)
     traj.clear(limb)
+
+#useg: gripper('both',open)
+def gripper(limb,operation,sleepTime = 1):
     
-
-
+    pub = rospy.Publisher('gripper_test_both/request', gripperTestRequest, latch = True)
+    msg = gripperTestRequest()
+    
+    if limb == 'left':
+        limb = 3
+    elif limb == 'right':
+        limb=4
+    elif limb == 'both':
+        limb=5
+    else:
+        rospy.logerr( "gripper limb input error")
+        return
+    
+    if operation == 'open':
+        cmd = 0
+    elif operation == 'close':
+        cmd=1
+    else:
+        rospy.logerr("gripper command input error")
+        return
+        
+    msg.limb = limb
+    msg.cmd = cmd
+    
+        
+    pub.publish(msg)
+    rospy.sleep(sleepTime)
+    

@@ -8,7 +8,7 @@
 
 ///Module specific
 //distance away to centre in Y direction
-#define GripperYoffset 0.04
+#define GripperYoffset 0.05
 //suitable gripping point above end in z direction
 #define GripperZoffset 0.09
 

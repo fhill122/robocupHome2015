@@ -1,4 +1,4 @@
-/**clear the content of Calibration.ini
+/**
  * put the scene image named Calibration.jpg under /home/robocuphome/robocuphome2015/src/vision/data/
  * then run this node
  */
@@ -38,9 +38,6 @@ void mouseClick(int event, int x, int y, int flags, void* userdata);
  * @function main
  */
 int main( int argc, char** argv ){
-    cout<<"x:"<<TableBlockX<<", y:"<<TableBlockY<<"\n";
-    double point5X = (double)BaseX + (double)BaseToPoint5;
-    cout<<"5x:"<<point5X<<"\n";
     
     ///check file availability
     fstream file (calibration_file_string.c_str());
@@ -154,14 +151,28 @@ void goodFeaturesToTrack_Demo( int, void* )
 
 void mouseClick(int event, int x, int y, int flags, void* userdata){
 	Mat* display = (Mat*) userdata;
-
+	double minDist = 150000,dist;
+	int closestIndex = 0;
 	if  ( event == EVENT_LBUTTONDOWN )
     {
         cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
-        Point centre(x,y);
-        circle( *display, centre, 10, Scalar(255,0,0), 3, 8, 0 );
-        corners_selected.push_back(centre);
-        goodFeaturesToTrack_Demo(0,0);
+        for( size_t i = 0; i < corners.size(); i++ ){
+			dist = (corners[i].x-x)*(corners[i].x-x) + (corners[i].y-y)*(corners[i].y-y);
+			if(dist < minDist){
+				minDist = dist;
+				closestIndex = (int)i;
+			}
+        }
+        //~ printf("minDist %f, i %d\n",minDist,closestIndex);
+        if (minDist<1000){
+            Point centre(cvRound(corners[closestIndex].x), cvRound(corners[closestIndex].y));
+			//~ Point centre(x, y);
+			circle( *display, centre, 10, Scalar(255,0,0), 3, 8, 0 );
+			printf("selected:\n");
+            corners_selected.push_back(corners[closestIndex]);
+			goodFeaturesToTrack_Demo(0,0);
+            printf("point: x=%f ,y=%f\n",corners[closestIndex].x,corners[closestIndex].y);
+		}
     }
 	
 }

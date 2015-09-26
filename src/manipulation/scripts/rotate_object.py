@@ -16,11 +16,12 @@ import actionlib
 from vision.srv import *
 from common_functions import *
 from Constants import *
+from pick_up_cylinder import *
 
-Z_START=0.4
-Z_PICK = TableZ + 0.075
+Z_PICK = TableZ + 0.552 
 
 def main():
+    
     #initiate ros, robot, assign variables...
     rospy.init_node("rsdk_set_position")
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
@@ -29,10 +30,18 @@ def main():
 
     limb = "left"
     
-    #test rotate bottle
-    rotate_to_original(limb,"CoffeeCup")
+    #test rotate bottle to original angle
+    #~ rotate_to_original(limb,"CoffeeCup")
+    
+    #unscrew a cap
+    rotateBottle(limb,object_position,0)
+    find_grip_cylinder("right","WaterBottle")
+    object_position = get_object_position("WaterBottle")
+    rotateBottle(limb,object_position,pi)
+    rotateBottle(limb,object_position,pi)
     return 0
 
+# find an object and its angle rotated, then move to it, rotate it to original angle
 def rotate_to_original(limb,object):
     ##find object
     object_position = get_object_position(object)
@@ -41,6 +50,7 @@ def rotate_to_original(limb,object):
     
     rotateBottle(limb,object_position,angle)
 
+# given object position, rotate a certain angle, then move up, can be used to unscrew cap
 #input: object position; angle to rotate(z)
 def rotateBottle(limb,object_position,angle):
     
@@ -56,12 +66,12 @@ def rotateBottle(limb,object_position,angle):
     #offset in y(gripper) direction
     offset = R*np.mat([ [0],[-0.03],[0] ])
     
-    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_START-0.2,rx,ry,rz,rw)]
+    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.2,rx,ry,rz,rw)]
     moveTrajectory(limb,position_list,[5])
 
 
     #down
-    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_START-0.29,rx,ry,rz,rw)]
+    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.29,rx,ry,rz,rw)]
     moveTrajectory(limb,position_list,[3])
 
     os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 1 3")
@@ -73,7 +83,7 @@ def rotateBottle(limb,object_position,angle):
     #offset in y(gripper) direction
     offset = R*np.mat([ [0],[-0.03],[0] ])
     
-    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_START-0.29,rx,ry,rz,rw)]
+    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.29,rx,ry,rz,rw)]
     moveTrajectory(limb,position_list,[3])
 
     
@@ -81,8 +91,8 @@ def rotateBottle(limb,object_position,angle):
     os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
     
     #move away,up
-    position_list = [ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_START-0.29,rx,ry,rz,rw)]
-    position_list.append( ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_START-0.19,rx,ry,rz,rw) )
+    position_list = [ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_PICK-0.29,rx,ry,rz,rw)]
+    position_list.append( ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_PICK-0.19,rx,ry,rz,rw) )
     moveTrajectory(limb,position_list,[3,6])
 
 

@@ -26,60 +26,59 @@ from baxter_core_msgs.srv import (
     SolvePositionIKRequest,
 )
 
-X_START=0.4
-Y_START=0.63
-Z_START=0.4
-Z_PICK = TableZ + 0.075
+
+    
+
 
 def main():
       
     #initiate ros, robot, assign variables...
-    rospy.init_node("rsdk_set_position")
+    rospy.init_node("pickup_cylinder")
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
     rs.enable()
 
     limb = "left"
     
+    ##start position
+    #for left
+    X_START=0.4
+    Y_START=0.63
+    Z_START=0.4
+    R_X=0.603489643517
+    R_Y=0.634442665138
+    R_Z=-0.335770984639
+    R_W=0.347189574577
+    if limb == "right":
+        Y_START= - Y_START
+        R_X=-R_X
+        R_Z=-R_Z
+    print X_START,Y_START,Z_START, R_X, R_Y, R_Z 
+    #~ moveTrajectory(limb,[ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W)], [6])
+    
     ##grip
     endPosition = find_grip_cylinder(limb,"CoffeeCup")
     #release
-    os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
+    gripper(limb,'open')
 
     return 0
 
 
+def grip_cylinder(limb, object_position):
     
-
-## remember to import TableZ, GripperLength before calling this function
-# alpha in degree, lim= "left" or "right"
-def find_grip_cylinder(limb,object):
+    Z_PICK = TableZ + 0.075
     
     traj = Trajectory(limb)
     ##constants
     theta = radians(-90)
     alpha = radians(95)
-    #object radius adjustment
-    r=0
-    offset = 0.1
-    R_X=0.603489643517
-    R_Y=0.634442665138
-    R_Z=-0.335770984639
-    R_W=0.347189574577
-
-    
-    #start position, no block of camera
-    traj.add_point(ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W), 6)
-    traj.start()
-    traj.wait(10.0)
-    traj.clear(limb)
     
     #get plate position
-    [x,y]=find_centre(get_object_position(object))
+    [x,y]=find_centre(object_position)
     print "centre position: %s\n"%[x,y]
     
     ##motion planning
-    step= 5
+    step= 10
     times=1
     alternating = -1
     foundAngle = 0
@@ -89,21 +88,25 @@ def find_grip_cylinder(limb,object):
         print "testing theta = ",degrees(theta), "\n"
 		#away and higher from object
         [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, 1.5*GripperYoffset, 2*GripperZoffset)
-        jointPosition_list = [ ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.13,r_x,r_y,r_z,r_w) ]
+        #~ [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,0, 0)
+        jointPosition_list = [ ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.16,r_x,r_y,r_z,r_w) ]
         duration = [4]
+        #pause
+        jointPosition_list.append( ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.16,r_x,r_y,r_z,r_w) )
+        duration.append (duration[-1]+4)
         #lower
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
         duration.append (duration[-1]+2)
         #pause
-        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
-        duration.append (duration[-1]+1)
+        #~ jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        #~ duration.append (duration[-1]+5)
         #closer in z1 direnction
         [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  1.5*GripperYoffset, 1.2*GripperZoffset)
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
         duration.append (duration[-1]+4)
         #pause
-        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
-        duration.append (duration[-1]+1)
+        #~ jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        #~ duration.append (duration[-1]+5)
         #tighter in y1 direction
         [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  0.75*GripperYoffset, 0.9*GripperZoffset)
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
@@ -142,12 +145,18 @@ def find_grip_cylinder(limb,object):
     traj.wait(30.0)
     traj.clear(limb)
     
-    os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 1 3")
+    gripper(limb,'close')
     
-    ##up
-    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,90,  0.75*GripperYoffset, 0.9*GripperZoffset)
-    jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.2,r_x,r_y,r_z,r_w))
-    
+    return 0
+
+## remember to import TableZ, GripperLength before calling this function
+# alpha in degree, lim= "left" or "right"
+def find_grip_cylinder(limb,object):
+
+    #get plate position
+    position = get_object_position(object)
+        
+    grip_cylinder(limb,position)
     
     return 0
     
