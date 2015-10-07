@@ -38,7 +38,7 @@ def main():
     alpha=35
     single_arm_pick("left",alpha)
     
-    Z_PICK = TableZ + sin(radians(alpha)) * GripperLength +0.013
+    Z_PICK = TableZ + sin(radians(alpha)) * GripperLength +0.008
     ## start position
     X_START=0.621888692162
     Y_START= - 0.46333973238

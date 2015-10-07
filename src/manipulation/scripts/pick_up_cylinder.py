@@ -27,8 +27,6 @@ from baxter_core_msgs.srv import (
 )
 
 
-    
-
 
 def main():
       
@@ -93,7 +91,7 @@ def grip_cylinder(limb, object_position):
         duration = [4]
         #pause
         jointPosition_list.append( ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.16,r_x,r_y,r_z,r_w) )
-        duration.append (duration[-1]+4)
+        duration.append (duration[-1]+1)
         #lower
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
         duration.append (duration[-1]+2)

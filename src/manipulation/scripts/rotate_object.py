@@ -21,7 +21,7 @@ from pick_up_cylinder import *
 Z_PICK = TableZ + 0.552 
 
 def main():
-    
+    RO
     #initiate ros, robot, assign variables...
     rospy.init_node("rsdk_set_position")
     rs = baxter_interface.RobotEnable(CHECK_VERSION)

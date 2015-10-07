@@ -123,6 +123,7 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
 	}
 	printf("good matches size %d\n",(int)good_matches.size());
 	Mat img_matches;
+    //~ drawKeypoints( img_frame, keypoints_frame, img_matches, Scalar::all(-1));
 	drawMatches( img_object, keypoints_object, img_frame, keypoints_frame,
 			   good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
 			   vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
