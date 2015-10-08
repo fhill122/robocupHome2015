@@ -13,6 +13,8 @@ from common_functions import *
 from Constants import *
 from move_plate_to_start_position import *
 
+import Coordinated_Motion
+
 
 from geometry_msgs.msg import (
     PoseStamped,
@@ -33,10 +35,11 @@ def main():
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
     rs.enable()
-    
+    gripper('both','open')
+ 
     #pickup
     alpha=35
-    single_arm_pick("left",alpha)
+    single_arm_pick("right",alpha)
     
     Z_PICK = TableZ + sin(radians(alpha)) * GripperLength +0.008
     ## start position
@@ -83,22 +86,39 @@ def main():
     traj.clear("left")
     os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 1 5")
     
-    # up 
+    # up
+    alpha=0
+    [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture("right",[[p1x,p1y],[p4x,p4y]],alpha, GripperLength*cos(radians(alpha)) )
     traj2.add_point(ik_position_list("right",(p1x+p4x)/2+0.7*offset_x +0.1,(p1y+p4y)/2+0.7*offset_y +0.05,Z_PICK+0.2,r_x,r_y,r_z,r_w), 4.0)
+    
+    hand_r = [(p1x+p4x)/2+0.7*offset_x +0.1, (p1y+p4y)/2+0.7*offset_y +0.05, Z_PICK+0.2]
+    
     [[p1x,p1y],[p4x,p4y]]=find_edge("left",plate_position)
     [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture("left",[[p1x,p1y],[p4x,p4y]],alpha, GripperLength*cos(radians(alpha)) )
-    traj.add_point(ik_position_list("left",(p1x+p4x)/2+0.7*offset_x +0.1,(p1y+p4y)/2+0.7*offset_y +0.05,Z_PICK+0.2,r_x,r_y,r_z,r_w), 4.0)
+    traj.add_point(ik_position_list("left",(p1x+p4x)/2+0.7*offset_x +0.1,(p1y+p4y)/2+1.0*offset_y +0.05,Z_PICK+0.2,r_x,r_y,r_z,r_w), 4.0)
     traj.start()
     traj2.start()
     
+    hand_l = [(p1x+p4x)/2+0.7*offset_x +0.1,(p1y+p4y)/2+1.0*offset_y +0.05,Z_PICK+0.2]
     
+    centre = [(hand_l[0]+hand_r[0])/2 , (hand_l[1]+hand_r[1])/2 , (hand_l[2]+hand_r[2])/2, 0.0]
     
-    traj.wait(20)
-    traj2.wait(20)
+    traj.wait(10)
+    traj2.wait(10)
     traj2.clear("right")
     traj.clear("left")
     
-
+    #~ rospy.sleep(10)
+    #~ 
+    #~ traj2.clear("right")
+    #~ traj.clear("left")
+    #~ Coordinated_Motion.move_co(centre)
+    #~ os.system("/home/robocuphome/ros_ws/src/baxter_examples/scripts/Coordinated_Motion.py"+str(centre[0])+str(centre[1])+str(centre[2]))
+    
+    os.system("rosnode kill /rsdk_position_joint_trajectory_action_server")
+    rospy.sleep(2)
+    Coordinated_Motion.move_co(centre)
+    os.system(" rosrun baxter_interface joint_trajectory_action_server.py ")
     return 0
 
 if __name__ == '__main__':

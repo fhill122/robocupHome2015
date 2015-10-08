@@ -446,7 +446,7 @@ def moveTrajectory(limb, jointPosition_list, duration):
     traj.wait(duration[i]+5)
     traj.clear(limb)
 
-#useg: gripper('both',open)
+#useg: gripper('both','open')
 def gripper(limb,operation,sleepTime = 1):
     
     pub = rospy.Publisher('gripper_test_both/request', gripperTestRequest, latch = True)

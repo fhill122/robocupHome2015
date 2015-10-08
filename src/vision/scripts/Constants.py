@@ -23,7 +23,7 @@ IMAGE_TOPIC = "/camera/rgb/image_raw"
 TableBlockY = 0.105
 TableBlockX = 0.099
 #pull from bolt to point 5
-BaseToPoint5 = 0.26
+BaseToPoint5 = 0.265
 BaseX = 0.155
 CameraZ = 0.8
 CameraX = 0.287
