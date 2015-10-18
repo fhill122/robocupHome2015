@@ -310,7 +310,7 @@ Mat readCalibration(ifstream &file){
     
     //fill ref_pixel_position
     printf("image:\n");
-    for (int i=0; i<6; i=i+1){
+    for (int i=0; i<4; i=i+1){
         //get x
         getline(file,line);
         const char* number =line.substr(line.find("=")+1).c_str();
@@ -326,7 +326,7 @@ Mat readCalibration(ifstream &file){
     //fill global position
     printf("global:\n");
     getline(file,line);
-    for (int i=0; i<6; i=i+1){
+    for (int i=0; i<4; i=i+1){
         //get x
         getline(file,line);
         const char* number =line.substr(line.find("=")+1).c_str();

@@ -24,10 +24,10 @@
 //paper block size
 //A3 paper Y=0.42 x=0.297
 //block = y/4 ,x/3 
-#define TableBlockY 0.105
-#define TableBlockX 0.099
+#define TableBlockY 0.1805
+#define TableBlockX 0.1405
 //pull from bolt to point 5
-#define BaseToPoint5 0.265
+#define BaseToPoint4 0.265
 #define BaseX 0.155
 #define CameraZ 0.8
 #define CameraX 0.287

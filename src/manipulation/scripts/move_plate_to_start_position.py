@@ -104,7 +104,7 @@ def single_arm_pick(limb,alpha):
     traj.wait()
     traj.clear(limb)
     
-    #gripper(limb,"open")
+    gripper(limb,"open")
     
     #move away
     traj.add_point(ik_position_list(limb,(p1x_final+p4x_final)/2+0.7*offset_x,(p1y_final+p4y_final)/2+0.7*offset_y,Z_PICK-0.015,r_x,r_y,r_z,r_w), 1.0)

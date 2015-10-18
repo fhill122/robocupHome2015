@@ -39,9 +39,8 @@ void mouseClick(int event, int x, int y, int flags, void* userdata);
  */
 int main( int argc, char** argv ){
     cout<<"x:"<<TableBlockX<<", y:"<<TableBlockY<<"\n";
-    double point4X = (double)BaseX + (double)BaseToPoint4;
-    cout<<"4x:"<<point4X<<"\n";
-    double point4Y =0;
+    double point5X = (double)BaseX + (double)BaseToPoint5;
+    cout<<"5x:"<<point5X<<"\n";
     
     ///check file availability
     fstream file (calibration_file_string.c_str());
@@ -74,8 +73,8 @@ int main( int argc, char** argv ){
     waitKey(0);
     
     /// Write to calibration file
-    if (corners_selected.size() != 4){
-        printf("!!Error!! \n!!Please select 4 points!!\n");
+    if (corners_selected.size() != 6){
+        printf("!!Error!! \n!!Please select 6 points!!\n");
     }
     else{
         
@@ -90,15 +89,20 @@ int main( int argc, char** argv ){
         //write corresponding global positions
         file << "[global]\n";
         //~ printf("BaseX = %f...\n",BaseX);
-        //double point4X = (double)BaseX + (double)BaseToPoint4;
-        file << "point1x="<<(point4X+1.*TableBlockX)<<"\n";
-        file << "point1y="<<(point4Y+1.*TableBlockY)<<"\n";
-        file << "point2x="<<(point4X+2.*TableBlockX)<<"\n";
-        file << "point2y="<<(point4Y+0.*TableBlockY)<<"\n";
-        file << "point3x="<<(point4X+1.*TableBlockX)<<"\n";
-        file << "point3y="<<(point4Y-1.*TableBlockY)<<"\n";
-        file << "point4x="<<(point4X+0.*TableBlockX)<<"\n";
-        file << "point4y="<<(point4Y+0.*TableBlockY)<<"\n";
+        double point5X = (double)BaseX + (double)BaseToPoint5;
+        double point5Y =0;
+        file << "point1x="<<(point5X+3.*TableBlockX)<<"\n";
+        file << "point1y="<<(point5Y+2.*TableBlockY)<<"\n";
+        file << "point2x="<<(point5X+3.*TableBlockX)<<"\n";
+        file << "point2y="<<(point5Y+0.*TableBlockY)<<"\n";
+        file << "point3x="<<(point5X+3.*TableBlockX)<<"\n";
+        file << "point3y="<<(point5Y-2.*TableBlockY)<<"\n";
+        file << "point4x="<<(point5X+0.*TableBlockX)<<"\n";
+        file << "point4y="<<(point5Y+2.*TableBlockY)<<"\n";
+        file << "point5x="<<(point5X+0.*TableBlockX)<<"\n";
+        file << "point5y="<<(point5Y+0.*TableBlockY)<<"\n";
+        file << "point6x="<<(point5X+0.*TableBlockX)<<"\n";
+        file << "point6y="<<(point5Y-2.*TableBlockY)<<"\n";
         printf("Calibration completed...\n");
     }
     file.close();
