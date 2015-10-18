@@ -1,0 +1,7 @@
+string ask
+string repeat
+string confirm
+string[] exp_ans
+---
+#index in exp_ans
+int32 index

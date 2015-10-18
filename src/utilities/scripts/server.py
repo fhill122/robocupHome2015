@@ -30,8 +30,8 @@ def main():
 
 
 def server_shutdown(s):
-    s.close()
-    print "socket closed, exiting...."
+	s.close()
+	print "socket closed, exiting...."
 
 def start_server():
 	global PORT, conn, addr, data_for_ros,data_received, s
@@ -45,8 +45,8 @@ def start_server():
 		try:
 			s.bind((HOST, PORT))
 		except socket.error , msg:
-	##        print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message: ' + msg[1]
-	##        sys.exit()
+			##        print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message: ' + msg[1]
+			##        sys.exit()
 			PORT=PORT+1
 			bindFail=1
 
@@ -55,7 +55,7 @@ def start_server():
 	s.listen(10)
 	print 'Socket now listening'
 
-	# loop to wait for connect
+	# loop to wait for connect, this loop never ends
 	while 1:
 		#wait to accept a connection - blocking call
 		conn, addr = s.accept()
@@ -64,11 +64,11 @@ def start_server():
 
 		# start rosservice only when connection is established
 		ros_s = rospy.Service(SERVICE_NAME , voiceCommand, handle_send_command)
-        ros_s_i = rospy.Service(SERVICE_NAME_INTERACT, android_interact, handle_android_interact)
-        
+		ros_s_i = rospy.Service(SERVICE_NAME_INTERACT, android_interact, handle_android_interact)
+
 
 		#accept data flow in
-        while 1:
+		while 1:
 			# check if data flow ends
 			print"waiting data from client...."
 			data_received = conn.recv(1024)
@@ -87,14 +87,15 @@ def start_server():
 			else:
 				print "this is a respond to ros command"
 				data_for_ros = data_received
-    
-    #data inflow end, close ros server
-    data_for_ros = None
-    ros_s.shutdown(SERVICE_NAME+": ros service shutdown: socket connection end")
-    ros_s_i.shutdown(SERVICE_NAME_INTERACT+": ros service shutdown: socket connection end")
-    print "connection end"
 
-# service call back
+		# data inflow end, close ros server
+		data_for_ros = None
+		ros_s.shutdown(SERVICE_NAME+": ros service shutdown: socket connection end")
+		ros_s_i.shutdown(SERVICE_NAME_INTERACT+": ros service shutdown: socket connection end")
+		print "connection end"
+
+
+#service call back
 # format:
 # /ask will speak string "ask" at android client, prompt for speech input, send back the speech result
 # ask just speak ask at android client, user has to manually send the response
@@ -107,7 +108,7 @@ def handle_send_command(req):
 		return "done"
 
 	conn.sendall(req.request+"\n")
-	
+
 	ros_request = req.request #or just any value?
 
 	while(data_for_ros == None):
@@ -124,15 +125,15 @@ def handle_send_command(req):
 # service call back
 # see android_interact.srv for format:
 def handle_android_interact(req):
-    ask = req.ask
-    repeat = req.repeat
-    confirm = req.confirm
-    exp_ans = req.exp_ans
-    
-    index = getProperAns(ask,repeat,confirm,exp_ans)
-    
-    return index
-    
+	ask = req.ask
+	repeat = req.repeat
+	confirm = req.confirm
+	exp_ans = req.exp_ans
+
+	index = getProperAns(ask,repeat,confirm,exp_ans)
+
+	return index
+
 #return the index in exp_ans, will ask first, then repeat REPEAT_TIMES, then
 def getProperAns(ask,repeat,confirm,exp_ans):
 
