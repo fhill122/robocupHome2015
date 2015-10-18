@@ -81,6 +81,7 @@ def single_arm_pick(limb,alpha):
     
     ## move
     #start position
+    #***************************************************************************************************************************************
     traj.add_point(ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W), 3.5)
     #~ #move to plate
     [[p1x,p1y],[p4x,p4y]]=find_edge(limb,plate_position)
@@ -103,13 +104,13 @@ def single_arm_pick(limb,alpha):
     traj.wait()
     traj.clear(limb)
     
-    gripper(limb,"open")
+    #gripper(limb,"open")
     
     #move away
     traj.add_point(ik_position_list(limb,(p1x_final+p4x_final)/2+0.7*offset_x,(p1y_final+p4y_final)/2+0.7*offset_y,Z_PICK-0.015,r_x,r_y,r_z,r_w), 1.0)
     traj.add_point(ik_position_list(limb,(p1x_final+p4x_final)/2+1.5*offset_x,(p1y_final+p4y_final)/2+1.5*offset_y,Z_PICK-0.015,r_x,r_y,r_z,r_w), 2.0)
-    traj.add_point(ik_position_list(limb,(p1x_final+p4x_final)/2+1.5*offset_x,(p1y_final+p4y_final)/2+1.5*offset_y,Z_PICK+0.2,r_x,r_y,r_z,r_w), 3.5)
-    traj.add_point(ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W), 6.5)
+    #traj.add_point(ik_position_list(limb,(p1x_final+p4x_final)/2+1.5*offset_x,(p1y_final+p4y_final)/2+1.5*offset_y,Z_PICK+0.2,r_x,r_y,r_z,r_w), 3.5)
+    #traj.add_point(ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W), 6.5)
     traj.start()
     traj.wait()
     

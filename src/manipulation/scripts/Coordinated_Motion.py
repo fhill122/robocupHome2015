@@ -77,7 +77,7 @@ def tray_to_end_effector(positions):
     X_R = []
     
     #tray dimensions
-    tray_l = ((36.4/100)/2)+GripperLength #tray width in metres
+    tray_l = 0.623/2 #tray width in metres
     tray_h = (28.3/100)/2 #tray length in metres
     
     for i in range(len(positions)):
@@ -86,7 +86,11 @@ def tray_to_end_effector(positions):
         z = positions[i][2]
         theta = positions[i][3]
         phi = math.pi*theta/180 #convert to radians
-        
+        #~ if theta==0.0:
+            #~ #Faster to just hard code when we want the "normal pose"
+            #~ ql = [0.707, 0.0, 0.0, 0.707]
+            #~ qr = [0.0, 0.707, 0.707, 0.0]
+        #~ else:
         q_both = tray_orientation(phi)
         qr = q_both[0]
         ql = q_both[1]
@@ -353,16 +357,17 @@ def quaternion_from_matrix(R):
     q = [ x, y, z, w]
 
     return q        
-def move_co(Start = [0.6, 0.0, 0.3, 0.0] ):
+def move_co(Start,End):
     #Can be removed once the start and end thing is inputted
     #alpha = 0 #TRAY ANGLE
-
-    End = [0.6, 0.2, 0.35, 0.0]
     
     split_sequence=splitter(Start,End)
     pick_sequence=list(tray_to_end_effector(split_sequence))    
     step = 0
-    First_Move = True            
+    First_Move = True   
+    last_right=2.85
+    last_left=2.85
+             
     while step<len(split_sequence):
         pick_left=pick_sequence[1][step]
         pick_right=pick_sequence[0][step]
@@ -372,10 +377,27 @@ def move_co(Start = [0.6, 0.0, 0.3, 0.0] ):
         arm_l = baxter_interface.Limb('left')
         arm_r = baxter_interface.Limb('right')
         
+        
+        
+        
+        #~ if position[0]['left_w2']<2:
+            #~ position[0]['left_w2']=last_left
+            #~ 
+            #~ print "ALERT##########################################"
+            #~ print position[0]['left_w2']
+            #~ 
+        #~ if position[1]['right_w2']<2:
+            #~ position[1]['right_w2']=last_right
+            #~ print "ALERT##########################################"
+            #~ print position[1]['right_w2']
+        #~ 
+
+        
+        
         i=1
         if First_Move == True:
             First_Move = False
-            while not ((i>500)or(rospy.is_shutdown())):
+            while not ((i>100)or(rospy.is_shutdown())):
                 arm_l.set_joint_positions(position[0])
                 arm_r.set_joint_positions(position[1])
                 rospy.sleep(.01)
@@ -385,9 +407,12 @@ def move_co(Start = [0.6, 0.0, 0.3, 0.0] ):
         while not ((i>1.0)or(rospy.is_shutdown())):
             arm_l.set_joint_positions(position[0])
             arm_r.set_joint_positions(position[1])
+            last_right=position[1]['right_w2']
+            last_left=position[0]['left_w2']
             rospy.sleep(.01)
             i=i+1
         step = step + 1
+    return End 
         
 def main():
     #NEED TO SET UP CODE TO INPUT A START AND END POSITION INTO THIS SCRIPT (in the format of center of tray and orientation (in degrees) of tray ie [x,y,z,theta])
@@ -410,7 +435,19 @@ def main():
 
     print("Enabling robot... ")
     rs.enable()
-    move_co()
+    alpha = 10 #TRAY ANGLE
+
+    pos = move_co([0.6, 0.0, 0.3, 0.0],[0.6, 0.0, 0.3, -alpha])  
+    pos = move_co(pos,[0.6, 0.0, 0.3, alpha])
+    pos = move_co(pos,[0.6, 0.0, 0.3, -alpha])
+    pos = move_co(pos,[0.6, 0.0, 0.3, 0.0])  
+    pos = move_co(pos,[0.6, -0.17, 0.2, 0.0])
+    pos = move_co(pos, [0.6, 0.0,0.5,0.0] )
+    pos = move_co(pos, [0.6, 0.17, 0.35, 0.0] )
+    pos = move_co(pos,[0.6, 0.0, 0.3, 0.0])
+    pos = move_co(pos,[0.7, 0.0, 0.3, 0.0])
+    pos = move_co(pos,[0.5, 0.0, 0.3, 0.0])
+    pos = move_co(pos,[0.6, 0.0, 0.3, 0.0])
     quit()
 
 if __name__ == '__main__':
