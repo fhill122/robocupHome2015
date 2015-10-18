@@ -1,0 +1,4 @@
+# request string: %ask%expect ans1,expect ans2,...%confirm
+string request
+---
+string response
