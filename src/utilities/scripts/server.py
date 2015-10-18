@@ -16,7 +16,10 @@ s = None # socket
 ros_called =  False
 ros_request = None
 
-SERVICE_NAME = 'send_to_android'
+REPEAT_TIMES = 2
+
+SERVICE_NAME = 'socket_android/command_android'
+SERVICE_NAME_INTERACT = 'socket_android/android_interact'
 
 def main():
 	#initiate ros, robot, assign variables...
@@ -61,9 +64,11 @@ def start_server():
 
 		# start rosservice only when connection is established
 		ros_s = rospy.Service(SERVICE_NAME , voiceCommand, handle_send_command)
+        ros_s_i = rospy.Service(SERVICE_NAME_INTERACT, android_interact, handle_android_interact)
+        
 
 		#accept data flow in
-		while 1:
+        while 1:
 			# check if data flow ends
 			print"waiting data from client...."
 			data_received = conn.recv(1024)
@@ -82,12 +87,12 @@ def start_server():
 			else:
 				print "this is a respond to ros command"
 				data_for_ros = data_received
-
-
-		#data inflow end, close ros server
-		data_for_ros = None
-		ros_s.shutdown("ros service shutdown: socket connection end")
-		print "connection end"
+    
+    #data inflow end, close ros server
+    data_for_ros = None
+    ros_s.shutdown(SERVICE_NAME+": ros service shutdown: socket connection end")
+    ros_s_i.shutdown(SERVICE_NAME_INTERACT+": ros service shutdown: socket connection end")
+    print "connection end"
 
 # service call back
 # format:
@@ -115,6 +120,68 @@ def handle_send_command(req):
 	ros_request = None
 	data_for_ros = None
 	return  temp
+
+# service call back
+# see android_interact.srv for format:
+def handle_android_interact(req):
+    ask = req.ask
+    repeat = req.repeat
+    confirm = req.confirm
+    exp_ans = req.exp_ans
+    
+    index = getProperAns(ask,repeat,confirm,exp_ans)
+    
+    return index
+    
+#return the index in exp_ans, will ask first, then repeat REPEAT_TIMES, then
+def getProperAns(ask,repeat,confirm,exp_ans):
+
+	ans = getAndroidAns("/"+ask)
+	index = findAnsIndex(exp_ans,ans)
+	if (index != -1):
+		getAndroidAns("."+confirm)
+		return index
+	print "failed at 1 first ask"
+
+	# repeat if not got expected ans
+	for i in range(REPEAT_TIMES):
+		ans = getAndroidAns("/"+repeat)
+		index = findAnsIndex(exp_ans,ans)
+		if (index != -1):
+			getAndroidAns("."+confirm)
+			return index
+	print "failed at repeat stage"
+
+	# let user input until an answer is got
+	while(True):
+		ans = getAndroidAns(repeat)
+		index = findAnsIndex(exp_ans,ans)
+		if (index != -1):
+			getAndroidAns("."+confirm)
+			return index
+
+#just get response from calling ros service
+def getAndroidAns(ask):
+	rospy.wait_for_service(SERVICE_NAME)
+	try:
+		srv_h=rospy.ServiceProxy(SERVICE_NAME,voiceCommand)
+		resp =srv_h(ask)
+	except rospy.ServiceException, e:
+		print "service dall failed: %s"%e
+
+	print "response from android: "+resp.response
+	return resp.response
+
+def findAnsIndex(exp_ans,ans):
+	for i in range(len(exp_ans)):
+		# print "i = ",i
+		# print ans.lower()
+		# print exp_ans[i].lower()
+		if ( exp_ans[i].lower() in ans.lower() ):
+			print "ans found at: ",i
+			return i
+	# not found
+	return -1
 
 if __name__ =="__main__":
 	main()

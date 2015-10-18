@@ -1,4 +1,7 @@
-# request string: %ask%expect ans1,expect ans2,...%confirm
+# voicecommand sent to android client
+# /ask will speak string "ask" at android client, prompt for speech input, send back the speech result
+# ask just speak ask at android client, user has to manually send the response
+# .ask will just speak at android, no response is required, set "done" to ROS service response
 string request
 ---
 string response
