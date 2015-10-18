@@ -27,6 +27,7 @@ class DesktopObject {
         float getMatchDistance(int i){ return matchDistance[i];}
         int getMatchNumber(int i){return matchNumber[i];}
         double getHeight(){return height;}
+        double getSize(){return size;}
         
 };
 

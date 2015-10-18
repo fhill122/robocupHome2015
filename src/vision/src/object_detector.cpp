@@ -83,7 +83,8 @@ int main( int argc, char** argv ){
 /**
  * @function detectAndDisplay return 0 if find the object,1 if not
  */
-int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int matchNumber, vector<KeyPoint> keypoints_object, Mat descriptors_object,vision::platePosition::Response &res, Mat H2, double h)
+int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int matchNumber,vector<KeyPoint> keypoints_object, 
+    Mat descriptors_object,vision::platePosition::Response &res, Mat H2, double h)
 {
 
 	std::vector<KeyPoint> keypoints_frame;
@@ -163,14 +164,14 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
         double shortEdge1 = norm( scene_corners[0] - scene_corners[3] );
         double shortEdge2 = norm( scene_corners[1] - scene_corners[2] );
         
-        if (longEdge1 > 3*img_object.cols || longEdge2 > 3*img_object.cols && shortEdge1 > 3*img_object.rows && shortEdge2 > 3*img_object.rows){
-        }
-        else{
-              //~ printf("Size not match!!\n");
-              //~ imshow( window_name, img_matches );
-              //~ waitKey(0);
-              //~ 
-              //~ return 1;
+        if ( (longEdge1 > 1.5*img_object.cols || longEdge2 > 1.5*img_object.cols || shortEdge1 > 1.5*img_object.rows || shortEdge2 > 1.5*img_object.rows) ||
+            (longEdge1 < 0.5*img_object.cols || longEdge2 < 0.5*img_object.cols || shortEdge1 < 0.5*img_object.rows || shortEdge2 < 0.5*img_object.rows) ){
+            printf("longEdge1,longEdge2,shortEdge1,shortEdge2: %f,%f,%f,%f\n",longEdge1,longEdge2,shortEdge1,shortEdge2);
+              printf("exceeds size limit!!\n");
+              imshow( window_name, img_matches );
+              waitKey(0);
+              
+              return 1;
         }
         //~ Point
         //~ float longEdge1 = pow( (scene_corners[0].x - scene_corners[1].x) , 2) + pow( (scene_corners[0].y - scene_corners[1].y) , 2);
@@ -266,7 +267,7 @@ bool get_object_position(vision::platePosition::Request &req, vision::platePosit
         SIFTfeatureCalculate(obj_images[i], keypoints_object,descriptors_object);
         
         detect_error = detectAndDisplay(img_frame, obj_images[i], objects[found].getMatchDistance(i),objects[found].getMatchNumber(i),
-            keypoints_object,descriptors_object,res, H, objects[found].getHeight() );
+            keypoints_object,descriptors_object,res, H, objects[found].getHeight());
         
         //found
         if (detect_error == 0)
