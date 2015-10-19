@@ -61,9 +61,10 @@ To source and cd to the workspace (do it on each terminal tab/window)
 	rosrun baxter_interface joint_trajectory_action_server.py
 
 # to test socket server:
-	rosservice call /socket_android/command_android "send command, manual send response back"
-	rosservice call /socket_android/command_android "/send command, pop up to speak"
-	rosservice call /socket_android/command_android ".send command, and that's all"
+	duration in millis
+	rosservice call /socket_android/command_android "send command, manual send response back/duration"
+	rosservice call /socket_android/command_android "/send command, pop up to speak/duration"
+	rosservice call /socket_android/command_android ".send command, and that's all/duration"
 
 	for /socket_android/android_interact, rosrun server_tester.py
 #miscellaneous

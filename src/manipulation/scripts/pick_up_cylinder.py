@@ -103,7 +103,7 @@ def grip_cylinder(limb, object_position):
     while abs(degrees(theta) -(- 90))<90:
         print "testing theta = ",degrees(theta), "\n"
 		#away and higher from object
-        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, 0*GripperYoffset, 2.5*GripperZoffset)
+        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, 0*GripperYoffset, 2.4*GripperZoffset)
         #~ [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,0, 0)
         jointPosition_list = [ ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.16,r_x,r_y,r_z,r_w) ]
         duration = [4]#4

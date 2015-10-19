@@ -15,7 +15,7 @@ def main():
 	rospy.wait_for_service(server.SERVICE_NAME_INTERACT)
 	try:
 		srv_h=rospy.ServiceProxy(server.SERVICE_NAME_INTERACT,android_interact)
-		resp =srv_h("Hi, do you want some water?", "I repeat, do you want some water? Yes or no", "OK", ["yes","no"])
+		resp =srv_h("Grasp the cup, and say yes when ready!/2700", "Are you ready now? Yes or no/2100", "Here you go", ["yes"])
 	except rospy.ServiceException, e:
 		print "service dall failed: %s"%e
 

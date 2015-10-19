@@ -56,7 +56,7 @@ def main():
     '''step 2: check with user'''
     try:
         srv_h=rospy.ServiceProxy("/socket_android/android_interact",android_interact)
-        resp =srv_h("Hello,    do you want chocolate m & m's or peanut m & m's ?", "I repeat, which m & m's do you want? chocolate or peanut", "OK", ["chocolate","peanut"])
+        resp =srv_h("Hello, do you want chocolate m & m's or peanut m & m's ?/45000", "I repeat, which m & m's do you want? chocolate or peanut/4000", "OK", ["chocolate","peanut"])
     except rospy.ServiceException, e:
         print "service dall failed: %s"%e
     if resp.index == 1:
@@ -80,37 +80,32 @@ def main():
     [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, radians(-90),radians(92), GripperYoffset,GripperZoffset)
     moveTrajectory(limb,[ ik_position_list(limb,0.5+offset_x, 0.3+offset_y,Z_PICK+0.2,r_x,r_y,r_z,r_w) ],[2])
     move_keep_orientation(limb,0,0,-0.2,2.0)
-    gripper(limb,'open')
-    #move away
-    move_keep_orientation(limb,0,0,-0.01,1)
-    rospy.sleep(0.5)
-    move_keep_orientation(limb,-0.025,0,0,1)
-    rospy.sleep(0.5)
-    move_keep_orientation(limb,0,0.1,0,1)
-    move_keep_orientation(limb,0,0,0.3,1.5)
 
-    # version 2
-    # limb = "left"
-    # rotate_object.graspTop(limb,find_centre(get_object_position(object)))
-    # gripper(limb,"close")
-    # move_keep_orientation(limb,0,0,0.2,2)
-    # #move to start position
-    # [x,y]=(0.5,0.2)
-    # [rx,ry,rz,rw,offset_x,offset_y] = rotate_object.graspTopGesture(limb)
-    # position_list = [ik_position_list(limb,x+offset_x,y+offset_y,Z_PICK+0.3,rx,ry,rz,rw)]
-    # moveTrajectory(limb,position_list,[5])
-    # gripper(limb,"open")
-    # rospy.sleep(5000)
+    rospy.sleep(2)
 
-    '''STEP 5: ROTATE then grab it again'''
-    limb = "left"
-    rotate_object.rotate_to_original(limb,object)
-    move_keep_orientation(limb,0,0,0.1,1.5)
-    move_keep_orientation(limb,0,0.2,0.15,3.5)
-    # pick up
-    pick_up_cylinder.move_to_start(limb)
-    pick_up_cylinder.find_grip_cylinder(limb,object)
-    # pick_up_cylinder.find_grip_cylinder(limb,object)
+    '''STEP 5: rotate if needed and grab it again'''
+    #get angle to rotate
+    angle = rotate_object.find_object_angle(object_position = get_object_position(object))
+    if degrees(abs(angle)) > 12:
+        # drop to rotate
+        gripper(limb,'open')
+        #move away
+        move_keep_orientation(limb,0,0,-0.01,1)
+        rospy.sleep(0.5)
+        move_keep_orientation(limb,-0.025,0,0,1)
+        rospy.sleep(0.5)
+        move_keep_orientation(limb,0,0.1,0,1)
+        move_keep_orientation(limb,0,0,0.3,1.5)
+
+        rotate_object.rotate_to_original(limb,object)
+        move_keep_orientation(limb,0,0,0.1,1.5)
+        move_keep_orientation(limb,0,0.2,0.15,3.5)
+
+        # pick up
+        pick_up_cylinder.move_to_start(limb)
+        pick_up_cylinder.find_grip_cylinder(limb,object)
+        # pick_up_cylinder.find_grip_cylinder(limb,object)
+
     move_keep_orientation(limb,0,0,0.3,1.5)
 
     '''STEP 6: PRE POURING POSE'''
@@ -119,7 +114,7 @@ def main():
     moveTrajectory('left',[ik_position_list('left',0.543975738964,0.121790468159, 0.110592316607,-0.383043274145,-0.597082624267,0.638377581709,-0.298737766446)], [2])
     moveTrajectory('left',[ik_position_list('left',0.569404851914,0.110451328135, 0.175854846917,-0.00833304041973,-0.69074518654,0.719911802142,0.0672952067089)], [4])
     #pause
-    moveTrajectory('left',[ik_position_list('left',0.569404851914,0.110451328135, 0.175854846917,-0.00833304041973,-0.69074518654,0.719911802142,0.0672952067089)], [10])
+    moveTrajectory('left',[ik_position_list('left',0.569404851914,0.110451328135, 0.175854846917,-0.00833304041973,-0.69074518654,0.719911802142,0.0672952067089)], [3])#time to pour
     moveTrajectory('left',[ik_position_list('left',0.510906641503,0.134156407589, 0.179486134566,0.568424137363,0.504650233009,-0.494327516422,0.421737416997)], [3])
 
     traj_left = Trajectory("left")
@@ -136,9 +131,10 @@ def main():
     limb = "right"
     [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, radians(-60),radians(92), GripperYoffset,GripperZoffset)
     moveTrajectory(limb,[ ik_position_list(limb,0.8+offset_x, -0.1+offset_y,Z_PICK+0.4,r_x,r_y,r_z,r_w) ],[4])
+
     try:
         srv_h=rospy.ServiceProxy("/socket_android/android_interact",android_interact)
-        resp =srv_h("Are you ready to take it?", "Are you ready to take it now? Yes or no", "Here you go", ["yes"])
+        resp =srv_h("Grasp the cup, and say yes when ready!/2700", "Are you ready now? Yes or no/2100", "Here you go", ["yes"])
     except rospy.ServiceException, e:
         print "service dall failed: %s"%e
     gripper(limb,"open")

@@ -40,8 +40,9 @@ def rotate_to_original(limb,object):
     object_position = get_object_position(object)
     #get angle to rotate
     angle = find_object_angle(object_position)
-    
+
     rotateBottle(limb,object_position,angle)
+
 
 def graspTopGesture(limb):
 
