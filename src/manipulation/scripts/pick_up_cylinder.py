@@ -26,7 +26,24 @@ from baxter_core_msgs.srv import (
     SolvePositionIKRequest,
 )
 
+def move_to_start(limb):
+    X_START=0.4
+    Y_START=0.63
+    Z_START=0.4
+    R_X=0.603489643517
+    R_Y=0.634442665138
+    R_Z=-0.335770984639
+    R_W=0.347189574577
+    print X_START,Y_START,Z_START, R_X, R_Y, R_Z
 
+    if limb =="left":
+        moveTrajectory(limb,[ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W)], [3])
+
+    else:
+        Y_START= - Y_START
+        R_X=-R_X
+        R_Z=-R_Z
+        moveTrajectory(limb,[ik_position_list(limb,X_START,Y_START,Z_START,R_X,R_Y,R_Z,R_W)], [3])
 
 def main():
       
@@ -37,6 +54,7 @@ def main():
     rs.enable()
 
     limb = "left"
+    gripper(limb,'open')
     
     ##start position
     #for left
@@ -85,34 +103,46 @@ def grip_cylinder(limb, object_position):
     while abs(degrees(theta) -(- 90))<90:
         print "testing theta = ",degrees(theta), "\n"
 		#away and higher from object
-        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, 1.5*GripperYoffset, 2*GripperZoffset)
+        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha, 0*GripperYoffset, 2.5*GripperZoffset)
         #~ [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,0, 0)
         jointPosition_list = [ ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.16,r_x,r_y,r_z,r_w) ]
-        duration = [4]
+        duration = [4]#4
         #pause
         jointPosition_list.append( ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK+0.16,r_x,r_y,r_z,r_w) )
-        duration.append (duration[-1]+1)
-        #lower
+        duration.append (duration[-1]+0)
+
+        #STAGE: lower
+        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        duration.append (duration[-1]+3)#2
+        #pause
+        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        duration.append (duration[-1]+0.5)
+
+        '''closer'''
+
+        # STAGE: y1
+        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  0.77*GripperYoffset, 2*GripperZoffset)
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
         duration.append (duration[-1]+2)
         #pause
-        #~ jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
-        #~ duration.append (duration[-1]+5)
-        #closer in z1 direnction
-        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  1.5*GripperYoffset, 1.2*GripperZoffset)
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
-        duration.append (duration[-1]+4)
+        duration.append (duration[-1]+0.5)
+
+        # STAGE: z1
+        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  0.77*GripperYoffset, 1.11*GripperZoffset)
+        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        duration.append (duration[-1]+3)
         #pause
-        #~ jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
-        #~ duration.append (duration[-1]+5)
-        #tighter in y1 direction
-        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  0.75*GripperYoffset, 0.9*GripperZoffset)
+        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        duration.append (duration[-1]+0.5)
+
+        # STAGE: y1
+        [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  0.3*GripperYoffset, 1.11*GripperZoffset)
         jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
         duration.append (duration[-1]+2)
-        #~ #tighter in z1 direction
-        #~ [r_x,r_y,r_z,r_w, offset_x, offset_y] = find_gesture_cylinder(limb, theta,alpha,  0*GripperYoffset, 0.5*GripperZoffset)
-        #~ jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
-        #~ duration.append (duration[-1]+2)
+        # pause
+        jointPosition_list.append(ik_position_list(limb,x+offset_x, y+offset_y,Z_PICK,r_x,r_y,r_z,r_w))
+        duration.append (duration[-1]+0.5)
         
         #check if found solution
         foundAngle = 1

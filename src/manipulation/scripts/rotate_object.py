@@ -18,10 +18,9 @@ from common_functions import *
 from Constants import *
 from pick_up_cylinder import *
 
-Z_PICK = TableZ + 0.552 
+
 
 def main():
-    RO
     #initiate ros, robot, assign variables...
     rospy.init_node("rsdk_set_position")
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
@@ -31,14 +30,8 @@ def main():
     limb = "left"
     
     #test rotate bottle to original angle
-    #~ rotate_to_original(limb,"CoffeeCup")
-    
-    #unscrew a cap
-    rotateBottle(limb,object_position,0)
-    find_grip_cylinder("right","WaterBottle")
-    object_position = get_object_position("WaterBottle")
-    rotateBottle(limb,object_position,pi)
-    rotateBottle(limb,object_position,pi)
+    rotate_to_original(limb,"CoffeeCup")
+
     return 0
 
 # find an object and its angle rotated, then move to it, rotate it to original angle
@@ -50,32 +43,51 @@ def rotate_to_original(limb,object):
     
     rotateBottle(limb,object_position,angle)
 
-# given object position, rotate a certain angle, then move up, can be used to unscrew cap
-#input: object position; angle to rotate(z)
-def rotateBottle(limb,object_position,angle):
-    
-    #locate the centre
-    [x,y]=find_centre(object_position)
-    
-    #start position
+def graspTopGesture(limb):
+
+    #suppose after Ry, z1,-Z0 allign
     Ry = get_R('y',radians(179))
     Rz = get_R('z',0)
     Rx = get_R('x',radians(10))
     R= Ry*Rz*Rx
     [rx,ry,rz,rw] = R_to_quaternion(R)
     #offset in y(gripper) direction
-    offset = R*np.mat([ [0],[-0.03],[0] ])
-    
-    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.2,rx,ry,rz,rw)]
+    offset = R*np.mat([ [0],[-0.025],[0] ]) #origin -0.03
+
+    return [rx,ry,rz,rw,offset.item(0),offset.item(1)]
+
+def graspTop(limb,centre):
+    Z_PICK = TableZ + 0.552
+    #locate the centre
+    [x,y]=centre
+
+    [rx,ry,rz,rw,offset_x,offset_y] = graspTopGesture(limb)
+
+    position_list = [ik_position_list(limb,x+offset_x,y+offset_y,Z_PICK-0.2,rx,ry,rz,rw)]
     moveTrajectory(limb,position_list,[5])
 
 
     #down
-    position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.29,rx,ry,rz,rw)]
+    position_list = [ik_position_list(limb,x+offset_x,y+offset_y,Z_PICK-0.29,rx,ry,rz,rw)]
     moveTrajectory(limb,position_list,[3])
 
-    os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 1 3")
-    
+    return
+
+
+
+# given object position, rotate a certain angle, then move up, can be used to unscrew cap
+#input: object position; angle to rotate(z)
+def rotateBottle(limb,object_position,angle):
+    Z_PICK = TableZ + 0.552
+    [x,y]=find_centre(object_position)
+    graspTop(limb,[x,y])
+    gripper(limb,"close")
+
+    #suppose after Ry, z1,-Z0 allign
+    Ry = get_R('y',radians(179))
+    Rx = get_R('x',radians(10))
+
+
     #rotate bottle
     Rz = get_R('z', angle)
     R= Ry*Rz*Rx
@@ -84,19 +96,24 @@ def rotateBottle(limb,object_position,angle):
     offset = R*np.mat([ [0],[-0.03],[0] ])
     
     position_list = [ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.29,rx,ry,rz,rw)]
+    # position_list.append(ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.29,rx,ry,rz,rw) )
+    # position_list.append(ik_position_list(limb,x+offset.item(0),y+offset.item(1),Z_PICK-0.293,rx,ry,rz,rw) )
     moveTrajectory(limb,position_list,[3])
-
+    rospy.sleep(0.1)
+    move_keep_orientation(limb,0,0,-0.004,2)
     
     #release
-    os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
+    rospy.sleep(0.5)
+    gripper(limb,"open")
+    # os.system("rostopic pub /gripper_test_both/request utilities/gripperTestRequest -1 '[0, now,base_link]' 0 3")
     
     #move away,up
-    position_list = [ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_PICK-0.29,rx,ry,rz,rw)]
-    position_list.append( ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_PICK-0.19,rx,ry,rz,rw) )
+    position_list = [ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_PICK-0.294,rx,ry,rz,rw)]
+    position_list.append( ik_position_list(limb,x+2*offset.item(0),y+2*offset.item(1),Z_PICK-0.294,rx,ry,rz,rw) )
     moveTrajectory(limb,position_list,[3,6])
 
 
-#return the angle that the object has rotated in -z axis
+#return the angle that the object has rotated in z axis
 def find_object_angle(object_position):
     
     #detect bottle
@@ -109,8 +126,40 @@ def find_object_angle(object_position):
     print degrees(theta1), degrees(theta2), degrees(theta3), degrees(theta4)
     avg_angle = getAverage([theta1,theta2,theta3,theta4])
     print "average :", degrees(avg_angle)
-    
+    rospy.logwarn("object angle: "+str(degrees(avg_angle)))
+
+
+    ''' check whether it is in range -90 to 90 '''
+
+    #check cos
+    if (abs(avg_angle)<pi/4):
+        if (x1+x2-x3-x4 +y1+y4-y2-y3)>0 :
+            print "1"
+            return avg_angle
+        else:
+            print "2"
+            return avg_angle +pi
+    #check sin
+    else:
+        if(avg_angle>=0):
+            if (x2-x1+y2-y3+x3-x4+y1-y4) >=0:
+                print "3"
+                return avg_angle
+            else:
+                print "4"
+                return avg_angle+pi
+        else:
+            if (x2-x1+y2-y3+x3-x4+y1-y4) <0:
+                print "5"
+                return avg_angle
+            else:
+                print "6"
+                rospy.logwarn("final object angle: "+str(degrees(avg_angle)))
+                return avg_angle+pi
+
+
     return avg_angle
+
 
 def getAverage(values):
     total = 0

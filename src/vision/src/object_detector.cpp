@@ -142,7 +142,7 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
 	if (good_matches.size()<matchNumber){
 	  printf("insufficient good matches\n");
 	  imshow( window_name, img_matches );
-	  waitKey(0);
+	  waitKey(3000);
 	  
       return 1;
 	}
@@ -169,7 +169,7 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
             printf("longEdge1,longEdge2,shortEdge1,shortEdge2: %f,%f,%f,%f\n",longEdge1,longEdge2,shortEdge1,shortEdge2);
               printf("exceeds size limit!!\n");
               imshow( window_name, img_matches );
-              waitKey(0);
+              waitKey(3000);
               
               return 1;
         }
@@ -198,7 +198,7 @@ int detectAndDisplay( Mat img_frame, Mat img_object, float matchDistance, int ma
         printf("point:\n%s\n%s\n%s\n%s\n",point1.c_str(),point2.c_str(),point3.c_str(),point4.c_str());
         
 		imshow( window_name, img_matches );
-        waitKey(0);
+        waitKey(50);
         
         //mapping to global position
         std::vector<Point2f> plate_real_position;//to find

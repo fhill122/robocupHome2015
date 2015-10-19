@@ -56,6 +56,8 @@ def get_object_position(object):
         #create service handler
         srv_h=rospy.ServiceProxy('/vision/get_object_position',platePosition)
         resp = srv_h(object)
+        if ([ [resp.p1[0],resp.p1[1]], [resp.p2[0],resp.p2[1]], [resp.p3[0],resp.p3[1]],[resp.p4[0],resp.p4[1]] ] ==[ [0,0],[0,0],[0,0],[0,0] ]):
+            return False
         return [ [resp.p1[0],resp.p1[1]], [resp.p2[0],resp.p2[1]], [resp.p3[0],resp.p3[1]],[resp.p4[0],resp.p4[1]] ]
     except rospy.ServiceException, e:
         print "service dall failed: %s"%e

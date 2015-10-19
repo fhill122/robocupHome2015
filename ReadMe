@@ -3,11 +3,13 @@ RobocupHome 2015
 
 To run:
 	Connect bluetooth
-	In each terminal, baxterConnect, baxter2015
+	In each terminal, baxterConnect, baxter2015(if not sourced)
 	Terminal 1: roslaunch openni_launch openni.launch
 	Terminal 2: rosrun rqt_reconfigure rqt_reconfigure , in camera/driver, set image_mode to sxga_15hz, close window, rosrun utilities gripper_test_both
 	Terminal 3: rosrun baxter_interface joint_trajectory_action_server.py
 	Terminal 4: rosrun vision object_detector
+	Terminal 5: rosrun utilities server.py ,  then check connection with phone
+	
 	Terminal 5: rosrun manipulation move_plate_to_start_position_using_trajectory
 
 to add/modify constants declaration:
@@ -50,6 +52,10 @@ To source and cd to the workspace (do it on each terminal tab/window)
 	
 #to get end point position
 	rostopic echo /robot/limb/left/endpoint_state/pose/position
+#to get joint angle
+	rostopic echo /robot/joint_states/position
+	['head_nod', 'head_pan', 'left_e0', 'left_e1', 'left_s0', 'left_s1', 'left_w0', 'left_w1', 'left_w2', 'right_e0', 'right_e1', 'right_s0', 'right_s1', 'right_w0', 'right_w1', 'right_w2', 'torso_t0']
+
 	
 # trajectory server
 	rosrun baxter_interface joint_trajectory_action_server.py
